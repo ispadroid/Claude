@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate AXA UPN-Wechsel Kurzanleitung DOCX."""
+"""Generate UPN_Wechsel_AXA.docx — AXA corporate one-pager."""
 
 from docx import Document
 from docx.shared import Cm, Pt, RGBColor, Twips
@@ -8,492 +8,486 @@ from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 import copy
-import os
 
-# ── colours ──────────────────────────────────────────────────────────────────
-C_BLUE   = "00008F"
-C_RED    = "FF1721"
-C_DARK   = "343C3D"
-C_SECTBG = "EEEEF8"
-C_WARNBG = "FFF0F0"
-C_WARNTX = "8F0000"
-C_GREYBG = "F5F5F5"
-C_WHITE  = "FFFFFF"
-C_BRDGRY = "CCCCCC"
-C_BRDBLU = "BBBBE8"
-C_HINT   = "8C9BA5"
-C_SUBTTL = "9999CC"
+OUT = "/home/user/Claude/UPN_Wechsel_AXA.docx"
+IMG = "/root/.claude/uploads/cb3da536-4c85-53a7-8105-b6b8a4960349/bf765434-IMG_4052.png"
 
-IMG_PATH = "/root/.claude/uploads/cb3da536-4c85-53a7-8105-b6b8a4960349/bf765434-IMG_4052.png"
-OUT_PATH = "/home/user/Claude/UPN_Wechsel_AXA.docx"
+# ── colours ────────────────────────────────────────────────────────────────
+BLUE   = "00008F"
+RED    = "FF1721"
+DARK   = "343C3D"
+SECBG  = "EEEEF8"
+WARNBG = "FFF0F0"
+WARNTX = "8F0000"
+GREY   = "F5F5F5"
+WHITE  = "FFFFFF"
+BRDGR  = "CCCCCC"
+BRDBL  = "BBBBE8"
+HINT   = "8C9BA5"
+SUBTTL = "9999CC"
 
-# ── helpers ───────────────────────────────────────────────────────────────────
+# ── helpers ────────────────────────────────────────────────────────────────
 
 def bg(cell, hex6):
     """Set cell background shading."""
     tcPr = cell._tc.get_or_add_tcPr()
-    shd = OxmlElement('w:shd')
-    shd.set(qn('w:val'), 'clear')
-    shd.set(qn('w:color'), 'auto')
-    shd.set(qn('w:fill'), hex6)
-    # Remove existing shd if any
-    for existing in tcPr.findall(qn('w:shd')):
+    shd = OxmlElement("w:shd")
+    shd.set(qn("w:val"), "clear")
+    shd.set(qn("w:color"), "auto")
+    shd.set(qn("w:fill"), hex6)
+    # Remove existing shd if present
+    for existing in tcPr.findall(qn("w:shd")):
         tcPr.remove(existing)
     tcPr.append(shd)
 
 
 def _get_or_add_tblPr(table):
-    """Get or add tblPr element on a table."""
+    """Get or create tblPr element on a table."""
     tbl = table._tbl
-    tblPr = tbl.find(qn('w:tblPr'))
+    tblPr = tbl.find(qn("w:tblPr"))
     if tblPr is None:
-        tblPr = OxmlElement('w:tblPr')
+        tblPr = OxmlElement("w:tblPr")
         tbl.insert(0, tblPr)
     return tblPr
-
-
-def _set_tbl_borders(tblPr, border_specs):
-    """Set table borders. border_specs is a dict of side -> (val, color, sz) or None."""
-    # Remove existing tblBorders
-    for existing in tblPr.findall(qn('w:tblBorders')):
-        tblPr.remove(existing)
-    tblBorders = OxmlElement('w:tblBorders')
-    for side, spec in border_specs.items():
-        brd = OxmlElement(f'w:{side}')
-        if spec is None:
-            brd.set(qn('w:val'), 'none')
-            brd.set(qn('w:sz'), '0')
-            brd.set(qn('w:space'), '0')
-            brd.set(qn('w:color'), 'auto')
-        else:
-            val, color, sz = spec
-            brd.set(qn('w:val'), val)
-            brd.set(qn('w:sz'), str(sz))
-            brd.set(qn('w:space'), '0')
-            brd.set(qn('w:color'), color)
-        tblBorders.append(brd)
-    tblPr.append(tblBorders)
 
 
 def no_brd(table):
     """Remove all table borders."""
     tblPr = _get_or_add_tblPr(table)
-    sides = ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']
-    _set_tbl_borders(tblPr, {s: None for s in sides})
+    # Remove existing tblBorders
+    for existing in tblPr.findall(qn("w:tblBorders")):
+        tblPr.remove(existing)
+    tblBorders = OxmlElement("w:tblBorders")
+    for side in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        el = OxmlElement(f"w:{side}")
+        el.set(qn("w:val"), "none")
+        el.set(qn("w:sz"), "0")
+        el.set(qn("w:space"), "0")
+        el.set(qn("w:color"), "auto")
+        tblBorders.append(el)
+    tblPr.append(tblBorders)
 
 
 def box_brd(table, color_hex, sz=4):
     """Outer border only, no inside borders."""
     tblPr = _get_or_add_tblPr(table)
-    outer_spec = ('single', color_hex, sz)
-    none_spec = None
-    sides = {
-        'top': outer_spec,
-        'left': outer_spec,
-        'bottom': outer_spec,
-        'right': outer_spec,
-        'insideH': none_spec,
-        'insideV': none_spec,
-    }
-    _set_tbl_borders(tblPr, sides)
+    for existing in tblPr.findall(qn("w:tblBorders")):
+        tblPr.remove(existing)
+    tblBorders = OxmlElement("w:tblBorders")
+    for side in ("top", "left", "bottom", "right"):
+        el = OxmlElement(f"w:{side}")
+        el.set(qn("w:val"), "single")
+        el.set(qn("w:sz"), str(sz))
+        el.set(qn("w:space"), "0")
+        el.set(qn("w:color"), color_hex)
+        tblBorders.append(el)
+    for side in ("insideH", "insideV"):
+        el = OxmlElement(f"w:{side}")
+        el.set(qn("w:val"), "none")
+        el.set(qn("w:sz"), "0")
+        el.set(qn("w:space"), "0")
+        el.set(qn("w:color"), "auto")
+        tblBorders.append(el)
+    tblPr.append(tblBorders)
 
 
 def cmar(cell, top, bot, left, right):
     """Set cell margins in twips."""
     tcPr = cell._tc.get_or_add_tcPr()
-    for existing in tcPr.findall(qn('w:tcMar')):
+    for existing in tcPr.findall(qn("w:tcMar")):
         tcPr.remove(existing)
-    tcMar = OxmlElement('w:tcMar')
-    for side, val in [('top', top), ('bottom', bot), ('left', left), ('right', right)]:
-        m = OxmlElement(f'w:{side}')
-        m.set(qn('w:w'), str(val))
-        m.set(qn('w:type'), 'dxa')
-        tcMar.append(m)
+    tcMar = OxmlElement("w:tcMar")
+    for name, val in (("top", top), ("bottom", bot), ("left", left), ("right", right)):
+        el = OxmlElement(f"w:{name}")
+        el.set(qn("w:w"), str(val))
+        el.set(qn("w:type"), "dxa")
+        tcMar.append(el)
     tcPr.append(tcMar)
 
 
 def valign(cell, v):
     """Set vertical alignment."""
     tcPr = cell._tc.get_or_add_tcPr()
-    for existing in tcPr.findall(qn('w:vAlign')):
+    for existing in tcPr.findall(qn("w:vAlign")):
         tcPr.remove(existing)
-    va = OxmlElement('w:vAlign')
-    va.set(qn('w:val'), v)
-    tcPr.append(va)
+    vAlign = OxmlElement("w:vAlign")
+    vAlign.set(qn("w:val"), v)
+    tcPr.append(vAlign)
 
 
-def fmt(p, align=None, sb=0, sa=0, li=None):
-    """Format paragraph spacing/indent/alignment."""
-    pf = p.paragraph_format
-    if align is not None:
-        p.alignment = align
-    pf.space_before = Pt(sb)
-    pf.space_after = Pt(sa)
+def fmt(p, align=WD_ALIGN_PARAGRAPH.LEFT, sb=0, sa=0, li=None):
+    """Format paragraph."""
+    p.alignment = align
+    p.paragraph_format.space_before = Pt(sb)
+    p.paragraph_format.space_after = Pt(sa)
     if li is not None:
-        pf.left_indent = li
-    # suppress line spacing
-    pf.line_spacing = Pt(12)
+        p.paragraph_format.left_indent = li
 
 
 def run(p, text, bold=False, italic=False, sz=9, col=None):
-    """Add a run with Arial font."""
+    """Add a run with Arial font and optional hex color."""
     r = p.add_run(text)
     r.bold = bold
     r.italic = italic
-    r.font.name = 'Arial'
+    r.font.name = "Arial"
     r.font.size = Pt(sz)
     if col:
-        r.font.color.rgb = RGBColor.from_string(col)
+        h = col
+        r.font.color.rgb = RGBColor(int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
     return r
 
 
 def gap(doc, pt=4):
     """Add a minimal-height spacer paragraph."""
     p = doc.add_paragraph()
-    pf = p.paragraph_format
-    pf.space_before = Pt(0)
-    pf.space_after = Pt(0)
-    pf.line_spacing = Pt(pt)
-    r = p.add_run('')
-    r.font.size = Pt(pt)
-    r.font.name = 'Arial'
-
-
-def add_table(doc, rows, cols, widths=None):
-    """Add a table with no auto-spacing and optional column widths."""
-    table = doc.add_table(rows=rows, cols=cols)
-    table.alignment = WD_TABLE_ALIGNMENT.LEFT
-    # Set column widths
-    if widths:
-        for i, w in enumerate(widths):
-            for row in table.rows:
-                row.cells[i].width = w
-    # Remove default table style spacing
-    table.style = doc.styles['Table Grid']
-    return table
-
-
-def set_para_shading(para, fill_hex):
-    """Set paragraph background shading."""
-    pPr = para._p.get_or_add_pPr()
-    for existing in pPr.findall(qn('w:shd')):
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(0)
+    pPr = p._p.get_or_add_pPr()
+    # Set line spacing to exact pt
+    pSpacing = OxmlElement("w:spacing")
+    pSpacing.set(qn("w:line"), str(int(pt * 20)))
+    pSpacing.set(qn("w:lineRule"), "exact")
+    # Remove existing spacing
+    for existing in pPr.findall(qn("w:spacing")):
         pPr.remove(existing)
-    shd = OxmlElement('w:shd')
-    shd.set(qn('w:val'), 'clear')
-    shd.set(qn('w:color'), 'auto')
-    shd.set(qn('w:fill'), fill_hex)
+    pPr.append(pSpacing)
+    # Make font tiny
+    rPr = OxmlElement("w:rPr")
+    sz_el = OxmlElement("w:sz")
+    sz_el.set(qn("w:val"), "2")
+    rPr.append(sz_el)
+    pPr.append(rPr)
+    return p
+
+
+def cm_to_twips(cm_val):
+    """Convert Cm() value (EMU) to twips. 1 twip = 635 EMU."""
+    return int(int(cm_val) / 635)
+
+
+def set_col_width(cell, width):
+    """Set column width for a cell."""
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    for existing in tcPr.findall(qn("w:tcW")):
+        tcPr.remove(existing)
+    tcW = OxmlElement("w:tcW")
+    tcW.set(qn("w:w"), str(cm_to_twips(width)))
+    tcW.set(qn("w:type"), "dxa")
+    tcPr.append(tcW)
+
+
+def add_paragraph_shading(para, hex6):
+    """Add background shading to a paragraph."""
+    pPr = para._p.get_or_add_pPr()
+    shd = OxmlElement("w:shd")
+    shd.set(qn("w:val"), "clear")
+    shd.set(qn("w:color"), "auto")
+    shd.set(qn("w:fill"), hex6)
+    for existing in pPr.findall(qn("w:shd")):
+        pPr.remove(existing)
     pPr.append(shd)
 
 
-def set_para_left_border(para, color_hex, sz=12):
-    """Add a left border to a paragraph (for warning bar effect)."""
+def add_paragraph_left_border(para, color_hex, sz=12, space=4):
+    """Add a left border to a paragraph."""
     pPr = para._p.get_or_add_pPr()
-    for existing in pPr.findall(qn('w:pBdr')):
+    for existing in pPr.findall(qn("w:pBdr")):
         pPr.remove(existing)
-    pBdr = OxmlElement('w:pBdr')
-    left = OxmlElement('w:left')
-    left.set(qn('w:val'), 'single')
-    left.set(qn('w:sz'), str(sz))
-    left.set(qn('w:space'), '4')
-    left.set(qn('w:color'), color_hex)
+    pBdr = OxmlElement("w:pBdr")
+    left = OxmlElement("w:left")
+    left.set(qn("w:val"), "single")
+    left.set(qn("w:sz"), str(sz))
+    left.set(qn("w:space"), str(space))
+    left.set(qn("w:color"), color_hex)
     pBdr.append(left)
     pPr.append(pBdr)
 
 
-def set_row_height(row, height_twips):
-    """Set exact row height in twips."""
-    tr = row._tr
-    trPr = tr.find(qn('w:trPr'))
-    if trPr is None:
-        trPr = OxmlElement('w:trPr')
-        tr.insert(0, trPr)
-    for existing in trPr.findall(qn('w:trHeight')):
-        trPr.remove(existing)
-    trHeight = OxmlElement('w:trHeight')
-    trHeight.set(qn('w:val'), str(height_twips))
-    trHeight.set(qn('w:hRule'), 'exact')
-    trPr.append(trHeight)
+def add_top_border(para, color_hex, sz=4):
+    """Add a top border to a paragraph."""
+    pPr = para._p.get_or_add_pPr()
+    for existing in pPr.findall(qn("w:pBdr")):
+        pPr.remove(existing)
+    pBdr = OxmlElement("w:pBdr")
+    top = OxmlElement("w:top")
+    top.set(qn("w:val"), "single")
+    top.set(qn("w:sz"), str(sz))
+    top.set(qn("w:space"), "4")
+    top.set(qn("w:color"), color_hex)
+    pBdr.append(top)
+    pPr.append(pBdr)
 
 
-def set_col_width(table, col_idx, width):
-    """Set column width for all cells in a column."""
-    for row in table.rows:
-        cell = row.cells[col_idx]
-        tc = cell._tc
-        tcPr = tc.get_or_add_tcPr()
-        for existing in tcPr.findall(qn('w:tcW')):
-            tcPr.remove(existing)
-        tcW = OxmlElement('w:tcW')
-        tcW.set(qn('w:w'), str(int(width.twips)))
-        tcW.set(qn('w:type'), 'dxa')
-        tcPr.append(tcW)
+def set_tbl_width(table, cm_val):
+    """Set table width in twips."""
+    tblPr = _get_or_add_tblPr(table)
+    tblW = OxmlElement("w:tblW")
+    tblW.set(qn("w:w"), str(cm_to_twips(cm_val)))
+    tblW.set(qn("w:type"), "dxa")
+    for existing in tblPr.findall(qn("w:tblW")):
+        tblPr.remove(existing)
+    tblPr.append(tblW)
 
 
-# ── document setup ────────────────────────────────────────────────────────────
+# ── document setup ─────────────────────────────────────────────────────────
 
 doc = Document()
 
-# Page margins
+# Page setup A4
 section = doc.sections[0]
-section.page_width = Cm(21)
 section.page_height = Cm(29.7)
+section.page_width = Cm(21.0)
 section.top_margin = Cm(1.0)
 section.bottom_margin = Cm(1.0)
 section.left_margin = Cm(1.2)
 section.right_margin = Cm(1.2)
 
-# Default paragraph style
-style = doc.styles['Normal']
-style.font.name = 'Arial'
+# Default styles
+style = doc.styles["Normal"]
+style.font.name = "Arial"
 style.font.size = Pt(9)
 pf = style.paragraph_format
 pf.space_before = Pt(0)
 pf.space_after = Pt(0)
 
-# ── 1. HEADER TABLE ───────────────────────────────────────────────────────────
+# ── 1. HEADER TABLE ────────────────────────────────────────────────────────
 
-hdr_table = add_table(doc, 1, 2, widths=[Cm(15), Cm(3.6)])
-no_brd(hdr_table)
+hdr_tbl = doc.add_table(rows=1, cols=2)
+hdr_tbl.alignment = WD_TABLE_ALIGNMENT.LEFT
+no_brd(hdr_tbl)
+set_tbl_width(hdr_tbl, Cm(18.6))
 
-# Left cell
-lc = hdr_table.rows[0].cells[0]
-lc.width = Cm(15)
-bg(lc, C_BLUE)
-cmar(lc, 80, 80, 170, 60)
-valign(lc, 'center')
+hdr_c1 = hdr_tbl.cell(0, 0)
+hdr_c2 = hdr_tbl.cell(0, 1)
 
-# Para 1: AXA | title
-p1 = lc.paragraphs[0]
-fmt(p1, align=WD_ALIGN_PARAGRAPH.LEFT, sb=0, sa=0)
-run(p1, 'AXA', bold=True, sz=18, col=C_WHITE)
-run(p1, '  |  ', bold=False, sz=14, col=C_WHITE)
-run(p1, 'UPN-Wechsel — Kurzanleitung', bold=True, sz=14, col=C_WHITE)
+# Set column widths
+set_col_width(hdr_c1, Cm(15))
+set_col_width(hdr_c2, Cm(3.6))
 
-# Para 2: subtitle
-p2 = lc.add_paragraph()
-fmt(p2, align=WD_ALIGN_PARAGRAPH.LEFT, sb=2, sa=0)
-run(p2, 'Was nach der Änderung deiner geschäftlichen E-Mail-Adresse zu tun ist',
-    bold=False, sz=8.5, col=C_SUBTTL)
+bg(hdr_c1, BLUE)
+bg(hdr_c2, BLUE)
+cmar(hdr_c1, 80, 80, 170, 60)
+cmar(hdr_c2, 80, 80, 60, 120)
+valign(hdr_c1, "center")
+valign(hdr_c2, "center")
 
-# Right cell: logo badge
-rc = hdr_table.rows[0].cells[1]
-rc.width = Cm(3.6)
-bg(rc, C_BLUE)
-cmar(rc, 80, 80, 60, 120)
-valign(rc, 'center')
+# Col1 Para1: AXA | UPN-Wechsel
+p1 = hdr_c1.paragraphs[0]
+fmt(p1)
+run(p1, "AXA", bold=True, sz=18, col=WHITE)
+run(p1, "  |  ", bold=False, sz=14, col=WHITE)
+run(p1, "UPN-Wechsel — Kurzanleitung", bold=True, sz=14, col=WHITE)
 
-p_logo = rc.paragraphs[0]
-fmt(p_logo, align=WD_ALIGN_PARAGRAPH.RIGHT, sb=0, sa=0)
-run(p_logo, 'AXA', bold=True, sz=20, col=C_WHITE)
+# Col1 Para2: subtitle
+p2 = hdr_c1.add_paragraph()
+fmt(p2, sb=2)
+run(p2, "Was nach der Änderung deiner geschäftlichen E-Mail-Adresse zu tun ist", sz=8.5, col=SUBTTL)
 
-# ── 2. RED ACCENT BAR ────────────────────────────────────────────────────────
+# Col2: AXA logo badge
+p_logo = hdr_c2.paragraphs[0]
+fmt(p_logo, align=WD_ALIGN_PARAGRAPH.RIGHT)
+run(p_logo, "AXA", bold=True, sz=20, col=WHITE)
 
-bar_table = add_table(doc, 1, 1)
-no_brd(bar_table)
-bar_cell = bar_table.rows[0].cells[0]
-bg(bar_cell, C_RED)
-set_row_height(bar_table.rows[0], 75)
-cmar(bar_cell, 0, 0, 0, 0)
-# Empty paragraph in bar
-bp = bar_cell.paragraphs[0]
-fmt(bp, sb=0, sa=0)
-run(bp, '', sz=2)
+# ── 2. RED ACCENT BAR ──────────────────────────────────────────────────────
 
-# ── 3. Gap ───────────────────────────────────────────────────────────────────
+red_tbl = doc.add_table(rows=1, cols=1)
+no_brd(red_tbl)
+red_cell = red_tbl.cell(0, 0)
+bg(red_cell, RED)
+cmar(red_cell, 0, 0, 0, 0)
+set_tbl_width(red_tbl, Cm(18.6))
+
+# Set row height to ~75 twips
+tr = red_tbl.rows[0]._tr
+trPr = tr.find(qn("w:trPr"))
+if trPr is None:
+    trPr = OxmlElement("w:trPr")
+    tr.insert(0, trPr)
+trHeight = OxmlElement("w:trHeight")
+trHeight.set(qn("w:val"), "75")
+trHeight.set(qn("w:hRule"), "exact")
+trPr.append(trHeight)
+
+# Empty paragraph in red cell
+p_red = red_cell.paragraphs[0]
+fmt(p_red)
+r_red = p_red.add_run(" ")
+r_red.font.size = Pt(1)
+
+# ── 3. GAP ─────────────────────────────────────────────────────────────────
+
 gap(doc, 3)
 
-# ── 4. INTRO TABLE ───────────────────────────────────────────────────────────
+# ── 4. INTRO TABLE ─────────────────────────────────────────────────────────
 
-intro_table = add_table(doc, 1, 1)
-box_brd(intro_table, C_BRDGRY, sz=4)
-intro_cell = intro_table.rows[0].cells[0]
-bg(intro_cell, C_GREYBG)
-cmar(intro_cell, 100, 100, 120, 120)
+intro_tbl = doc.add_table(rows=1, cols=1)
+box_brd(intro_tbl, BRDGR, sz=4)
+set_tbl_width(intro_tbl, Cm(18.6))
 
-ip = intro_cell.paragraphs[0]
-fmt(ip, align=WD_ALIGN_PARAGRAPH.JUSTIFY, sb=0, sa=0)
-run(ip, 'Dein ', sz=8.5, col=C_DARK)
-run(ip, 'User Principal Name (UPN)', bold=True, sz=8.5, col=C_DARK)
-run(ip, ' — deine geschäftliche E-Mail-Adresse — wurde geändert. '
-    'Einige Microsoft-365-Apps müssen manuell neu verknüpft werden. '
-    'Folge den Schritten — es dauert nur wenige Minuten.',
-    sz=8.5, col=C_DARK)
+intro_cell = intro_tbl.cell(0, 0)
+bg(intro_cell, GREY)
+cmar(intro_cell, 80, 80, 120, 120)
 
-# ── 5. Gap ───────────────────────────────────────────────────────────────────
+p_intro = intro_cell.paragraphs[0]
+fmt(p_intro, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
+run(p_intro, "Dein ", sz=8.5, col=DARK)
+run(p_intro, "User Principal Name (UPN)", bold=True, sz=8.5, col=DARK)
+run(p_intro, " — deine geschäftliche E-Mail-Adresse — wurde geändert. Einige Microsoft-365-Apps müssen manuell neu verknüpft werden. Folge den Schritten — es dauert nur wenige Minuten.", sz=8.5, col=DARK)
+
+# ── 5. GAP ─────────────────────────────────────────────────────────────────
+
 gap(doc, 4)
 
-# ── 6. SECTION 1 HEADER ──────────────────────────────────────────────────────
+# ── 6. SECTION 1 HEADER ────────────────────────────────────────────────────
 
-s1h_table = add_table(doc, 1, 1)
-no_brd(s1h_table)
-s1h_cell = s1h_table.rows[0].cells[0]
-bg(s1h_cell, C_BLUE)
-cmar(s1h_cell, 80, 80, 120, 120)
+def section_header(doc, text):
+    tbl = doc.add_table(rows=1, cols=1)
+    no_brd(tbl)
+    set_tbl_width(tbl, Cm(18.6))
+    cell = tbl.cell(0, 0)
+    bg(cell, BLUE)
+    cmar(cell, 70, 70, 120, 120)
+    p = cell.paragraphs[0]
+    fmt(p)
+    run(p, text, bold=True, sz=10.5, col=WHITE)
+    return tbl
 
-s1h_p = s1h_cell.paragraphs[0]
-fmt(s1h_p, align=WD_ALIGN_PARAGRAPH.LEFT, sb=0, sa=0)
-run(s1h_p, '1 — Microsoft OneNote — Notizbücher neu verknüpfen',
-    bold=True, sz=10.5, col=C_WHITE)
 
-# ── 7. SECTION 1 BODY ────────────────────────────────────────────────────────
+section_header(doc, "1 — Microsoft OneNote — Notizbücher neu verknüpfen")
 
-s1b_table = add_table(doc, 1, 2, widths=[Cm(11.0), Cm(7.6)])
-box_brd(s1b_table, C_BRDBLU, sz=4)
+# ── 7. SECTION 1 BODY ──────────────────────────────────────────────────────
 
-# Left col
-lc1 = s1b_table.rows[0].cells[0]
-lc1.width = Cm(11.0)
-bg(lc1, C_SECTBG)
-cmar(lc1, 100, 100, 120, 80)
+s1_tbl = doc.add_table(rows=1, cols=2)
+box_brd(s1_tbl, BRDBL, sz=4)
+set_tbl_width(s1_tbl, Cm(18.6))
+
+s1_left = s1_tbl.cell(0, 0)
+s1_right = s1_tbl.cell(0, 1)
+set_col_width(s1_left, Cm(11.0))
+set_col_width(s1_right, Cm(7.6))
+
+bg(s1_left, SECBG)
+bg(s1_right, SECBG)
+cmar(s1_left, 80, 80, 120, 80)
+cmar(s1_right, 80, 80, 80, 80)
+valign(s1_left, "top")
+valign(s1_right, "center")
 
 # Steps for section 1
-steps1 = [
-    ('⚠', 'Vor dem Schließen: Sync-Fehler prüfen',
-     'Sicherstellen, dass keine Sync-Fehler vorhanden sind. '
-     'Falls ja: betroffene Notizbücher zuerst manuell aus dem lokalen Ordner sichern.',
-     C_RED, True),
-    ('1', 'Alle Notizbücher schließen',
-     'Rechtsklick auf jedes Notizbuch im linken Bereich → Notizbuch schließen '
-     '(Close This Notebook). Für alle wiederholen, dann App beenden.',
-     C_BLUE, False),
-    ('2', 'Bei OneDrive Web mit neuer Adresse anmelden',
-     'Browser öffnen → onedrive.com → mit der neuen geschäftlichen '
-     'E-Mail-Adresse (neuem UPN) anmelden.',
-     C_BLUE, False),
-    ('3', 'Notizbuch direkt aus OneDrive Web öffnen',
-     'Zum Ordner des Notizbuchs navigieren und darauf klicken: öffnet sich in OneNote '
-     'für das Web. (Erzwingt die Neuverknüpfung mit dem neuen UPN.)',
-     C_BLUE, False),
-    ('4', 'In der Desktop-App weiterarbeiten',
-     'In OneNote für das Web oben rechts auf «In OneNote öffnen» klicken. '
-     'Das Notizbuch ist nun korrekt mit dem neuen Konto verknüpft.',
-     C_BLUE, False),
+steps_s1 = [
+    ("⚠", "Vor dem Schließen: Sync-Fehler prüfen",
+     "Sicherstellen, dass keine Sync-Fehler vorhanden sind. Falls ja: betroffene Notizbücher zuerst manuell aus dem lokalen Ordner sichern.",
+     RED, True),
+    ("1", "Alle Notizbücher schließen",
+     "Rechtsklick auf jedes Notizbuch im linken Bereich → Notizbuch schließen (Close This Notebook). Für alle wiederholen, dann App beenden.",
+     BLUE, False),
+    ("2", "Bei OneDrive Web mit neuer Adresse anmelden",
+     "Browser öffnen → onedrive.com → mit der neuen geschäftlichen E-Mail-Adresse (neuem UPN) anmelden.",
+     BLUE, False),
+    ("3", "Notizbuch direkt aus OneDrive Web öffnen",
+     "Zum Ordner des Notizbuchs navigieren und darauf klicken: öffnet sich in OneNote für das Web. (Erzwingt die Neuverknüpfung mit dem neuen UPN.)",
+     BLUE, False),
+    ("4", "In der Desktop-App weiterarbeiten",
+     "In OneNote für das Web oben rechts auf «In OneNote öffnen» klicken. Das Notizbuch ist nun korrekt mit dem neuen Konto verknüpft.",
+     BLUE, False),
 ]
 
 first_para = True
-for num, label, desc, num_col, is_warning in steps1:
-    # Label paragraph
+for num, label, desc, num_col, is_warning in steps_s1:
+    # Label para
     if first_para:
-        lp = lc1.paragraphs[0]
+        p_label = s1_left.paragraphs[0]
         first_para = False
     else:
-        lp = lc1.add_paragraph()
-    fmt(lp, align=WD_ALIGN_PARAGRAPH.LEFT, sb=4, sa=0)
-    run(lp, num + '  ', bold=True, sz=12, col=num_col)
-    run(lp, label, bold=True, sz=9, col=C_DARK)
+        p_label = s1_left.add_paragraph()
+    fmt(p_label, sb=4)
+    run(p_label, num + "  ", bold=True, sz=12, col=num_col)
+    run(p_label, label, bold=True, sz=9, col=RED if is_warning else DARK)
 
-    # Description paragraph
-    dp = lc1.add_paragraph()
-    fmt(dp, align=WD_ALIGN_PARAGRAPH.LEFT, sb=0, sa=2, li=Cm(0.6))
-    desc_col = C_RED if is_warning else C_DARK
-    run(dp, desc, sz=8, col=desc_col)
+    # Description para
+    p_desc = s1_left.add_paragraph()
+    fmt(p_desc, li=Cm(0.6), sa=2)
+    desc_col = RED if is_warning else DARK
+    run(p_desc, desc, sz=8, col=desc_col)
 
 # Right col: image + caption
-rc1 = s1b_table.rows[0].cells[1]
-rc1.width = Cm(7.6)
-bg(rc1, C_SECTBG)
-cmar(rc1, 100, 100, 80, 80)
-valign(rc1, 'center')
+p_img = s1_right.paragraphs[0]
+fmt(p_img, align=WD_ALIGN_PARAGRAPH.CENTER)
 
-img_p = rc1.paragraphs[0]
-fmt(img_p, align=WD_ALIGN_PARAGRAPH.CENTER, sb=0, sa=4)
+img_width = Cm(7.6) - Cm(1.3)
+img_height = img_width * (351 / 345)
 
-# Add image with proportional sizing
-img_width = Cm(7.6) - Cm(1.3)  # ~Cm(6.3)
-img_ratio = 351 / 345
-img_height = img_width * img_ratio
+try:
+    r_img = p_img.add_run()
+    r_img.add_picture(IMG, width=img_width, height=img_height)
+except Exception as e:
+    run(p_img, f"[Bild: {e}]", sz=7.5, col=HINT)
 
-if os.path.exists(IMG_PATH):
-    img_run = img_p.add_run()
-    img_run.add_picture(IMG_PATH, width=img_width, height=img_height)
-else:
-    run(img_p, '[Bild nicht gefunden]', sz=8, col=C_HINT)
+p_cap = s1_right.add_paragraph()
+fmt(p_cap, align=WD_ALIGN_PARAGRAPH.CENTER, sb=4)
+run(p_cap, "Rechtsklick → Notizbuch schließen", italic=True, sz=7.5, col=HINT)
 
-# Caption
-cap_p = rc1.add_paragraph()
-fmt(cap_p, align=WD_ALIGN_PARAGRAPH.CENTER, sb=2, sa=0)
-run(cap_p, 'Rechtsklick → Notizbuch schließen', italic=True, sz=7.5, col=C_HINT)
+# ── 8. GAP ─────────────────────────────────────────────────────────────────
 
-# ── 8. Gap ───────────────────────────────────────────────────────────────────
 gap(doc, 4)
 
-# ── 9. SECTION 2 HEADER ──────────────────────────────────────────────────────
+# ── 9. SECTION 2 HEADER ────────────────────────────────────────────────────
 
-s2h_table = add_table(doc, 1, 1)
-no_brd(s2h_table)
-s2h_cell = s2h_table.rows[0].cells[0]
-bg(s2h_cell, C_BLUE)
-cmar(s2h_cell, 80, 80, 120, 120)
+section_header(doc, "2 — OneDrive — Freigaben neu erstellen")
 
-s2h_p = s2h_cell.paragraphs[0]
-fmt(s2h_p, align=WD_ALIGN_PARAGRAPH.LEFT, sb=0, sa=0)
-run(s2h_p, '2 — OneDrive — Freigaben neu erstellen',
-    bold=True, sz=10.5, col=C_WHITE)
+# ── 10. SECTION 2 BODY ─────────────────────────────────────────────────────
 
-# ── 10. SECTION 2 BODY ───────────────────────────────────────────────────────
+s2_tbl = doc.add_table(rows=1, cols=1)
+box_brd(s2_tbl, BRDBL, sz=4)
+set_tbl_width(s2_tbl, Cm(18.6))
 
-s2b_table = add_table(doc, 1, 1)
-box_brd(s2b_table, C_BRDBLU, sz=4)
-s2b_cell = s2b_table.rows[0].cells[0]
-bg(s2b_cell, C_SECTBG)
-cmar(s2b_cell, 100, 100, 120, 120)
+s2_cell = s2_tbl.cell(0, 0)
+bg(s2_cell, SECBG)
+cmar(s2_cell, 80, 80, 120, 120)
 
-# Warning paragraph
-warn_p = s2b_cell.paragraphs[0]
-fmt(warn_p, align=WD_ALIGN_PARAGRAPH.LEFT, sb=0, sa=5, li=Cm(0.1))
-set_para_shading(warn_p, C_WARNBG)
-set_para_left_border(warn_p, C_RED, sz=16)
-run(warn_p, '⚠  ', bold=True, sz=9, col=C_RED)
-run(warn_p, 'Alle Freigaben mit dem alten UPN werden ', sz=8.5, col=C_WARNTX)
-run(warn_p, 'automatisch ungültig.', bold=True, sz=8.5, col=C_WARNTX)
-run(warn_p, ' Empfänger verlieren den Zugriff — jedes Element muss manuell neu geteilt werden.',
-    sz=8.5, col=C_WARNTX)
+# Warning para
+p_warn = s2_cell.paragraphs[0]
+fmt(p_warn, li=Cm(0.1), sa=5)
+add_paragraph_shading(p_warn, WARNBG)
+add_paragraph_left_border(p_warn, RED, sz=12, space=4)
+run(p_warn, "⚠  ", bold=True, sz=9, col=RED)
+run(p_warn, "Alle Freigaben mit dem alten UPN werden ", sz=8.5, col=WARNTX)
+run(p_warn, "automatisch ungültig.", bold=True, sz=8.5, col=WARNTX)
+run(p_warn, " Empfänger verlieren den Zugriff — jedes Element muss manuell neu geteilt werden.", sz=8.5, col=WARNTX)
 
 # Steps for section 2
-steps2 = [
-    ('1', 'Alten Freigabe-Link deaktivieren',
-     'In OneDrive (Web) zur geteilten Datei/Ordner navigieren → Rechtsklick → '
-     'Zugriff verwalten → den alten Link entfernen oder deaktivieren.'),
-    ('2', 'Neu teilen mit neuem UPN',
-     'Erneut auf «Teilen» klicken und die neue geschäftliche E-Mail-Adresse '
-     'als Absender-Konto verwenden. Empfänger per E-Mail neu einladen.'),
-    ('3', 'Bestätigung einholen',
-     'Sicherstellen, dass Empfänger den neuen Link erhalten haben und Zugriff '
-     'funktioniert. Bei Problemen IT-Team kontaktieren.'),
+steps_s2 = [
+    ("1", "Freigegebene Elemente identifizieren",
+     "In OneDrive Web oben auf «Geteilt» klicken → «Von mir geteilt» auswählen. Alle Elemente notieren, die mit dem alten UPN geteilt wurden."),
+    ("2", "Freigaben entfernen und neu erstellen",
+     "Für jedes Element: Rechtsklick → «Freigabe verwalten» → bestehende Freigaben entfernen → neu teilen mit der neuen E-Mail-Adresse der Empfänger."),
+    ("3", "Empfänger informieren",
+     "Empfänger über die neuen Freigabe-Links informieren. Die alten Links funktionieren nicht mehr."),
 ]
 
-for num, label, desc in steps2:
-    lp = s2b_cell.add_paragraph()
-    fmt(lp, align=WD_ALIGN_PARAGRAPH.LEFT, sb=4, sa=0)
-    run(lp, num + '  ', bold=True, sz=12, col=C_BLUE)
-    run(lp, label, bold=True, sz=9, col=C_DARK)
+for num, label, desc in steps_s2:
+    p_label = s2_cell.add_paragraph()
+    fmt(p_label, sb=4)
+    run(p_label, num + "  ", bold=True, sz=12, col=BLUE)
+    run(p_label, label, bold=True, sz=9, col=DARK)
 
-    dp = s2b_cell.add_paragraph()
-    fmt(dp, align=WD_ALIGN_PARAGRAPH.LEFT, sb=0, sa=2, li=Cm(0.6))
-    run(dp, desc, sz=8, col=C_DARK)
+    p_desc = s2_cell.add_paragraph()
+    fmt(p_desc, li=Cm(0.6), sa=2)
+    run(p_desc, desc, sz=8, col=DARK)
 
-# ── 11. Gap ──────────────────────────────────────────────────────────────────
+# ── 11. GAP ────────────────────────────────────────────────────────────────
+
 gap(doc, 4)
 
-# ── 12. FOOTER ───────────────────────────────────────────────────────────────
+# ── 12. FOOTER ─────────────────────────────────────────────────────────────
 
-footer_p = doc.add_paragraph()
-fmt(footer_p, align=WD_ALIGN_PARAGRAPH.CENTER, sb=4, sa=0)
+p_footer = doc.add_paragraph()
+fmt(p_footer, align=WD_ALIGN_PARAGRAPH.CENTER, sb=4)
+add_top_border(p_footer, BRDGR, sz=4)
+run(p_footer, "Bei Fragen wende dich an das IT-Team  ·  Internes Dokument", sz=7.5, col=HINT)
 
-# Add top border to paragraph
-pPr = footer_p._p.get_or_add_pPr()
-pBdr = OxmlElement('w:pBdr')
-top_brd = OxmlElement('w:top')
-top_brd.set(qn('w:val'), 'single')
-top_brd.set(qn('w:sz'), '4')
-top_brd.set(qn('w:space'), '4')
-top_brd.set(qn('w:color'), C_BRDGRY)
-pBdr.append(top_brd)
-pPr.append(pBdr)
+# ── SAVE ───────────────────────────────────────────────────────────────────
 
-run(footer_p, 'Bei Fragen wende dich an das IT-Team  ·  Internes Dokument',
-    sz=7.5, col=C_HINT)
-
-# ── Save ─────────────────────────────────────────────────────────────────────
-doc.save(OUT_PATH)
-print(f"SUCCESS: Document saved to {OUT_PATH}")
+doc.save(OUT)
+print(f"✓ Saved: {OUT}")
