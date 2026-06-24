@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#c0392b">
+  <title>Mary Jo Nails 💅</title>
+  <?!= include('Styles'); ?>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ================================================================
+       SPINNER OVERLAY
+       ================================================================ -->
+  <div id="spinner-overlay" class="spinner-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- ================================================================
+       TOAST CONTAINER
+       ================================================================ -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ================================================================
+       WHATSAPP MODAL
+       ================================================================ -->
+  <div id="wa-modal" class="modal-overlay" onclick="if(event.target===this)closeWAModal()">
+    <div class="modal">
+      <div class="modal-title">💬 Messaggio WhatsApp</div>
+      <div class="form-group">
+        <label>Numero telefono</label>
+        <p id="wa-phone-display" style="font-size:15px;font-weight:600;"></p>
+      </div>
+      <div class="form-group">
+        <label>Messaggio</label>
+        <textarea id="wa-message-text" rows="4" style="font-size:14px;"></textarea>
+      </div>
+      <button class="btn btn-success" onclick="copyWAMessage()">📋 Copia messaggio</button>
+      <a id="wa-open-btn" href="#" target="_blank" class="btn btn-primary" style="display:none;">
+        📱 Apri WhatsApp
+      </a>
+      <p class="help-text text-center">Il PDF deve essere allegato manualmente dopo aver aperto WhatsApp.</p>
+      <button class="btn btn-gray" onclick="closeWAModal()">Chiudi</button>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: LOGIN
+       ================================================================ -->
+  <div id="page-login" class="page">
+    <div class="login-logo">
+      <span class="login-logo-emoji">💅</span>
+      <div class="login-logo-title" id="login-biz-name">Mary Jo Nails</div>
+      <div class="login-logo-sub">Contabilità</div>
+    </div>
+    <div class="login-card">
+      <p class="text-center" style="color:#6b7280;margin-bottom:16px;">Inserisci il tuo PIN</p>
+      <div class="pin-display">
+        <div class="pin-dot" id="pin-dot-0"></div>
+        <div class="pin-dot" id="pin-dot-1"></div>
+        <div class="pin-dot" id="pin-dot-2"></div>
+        <div class="pin-dot" id="pin-dot-3"></div>
+        <div class="pin-dot" id="pin-dot-4"></div>
+        <div class="pin-dot" id="pin-dot-5"></div>
+      </div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key" onclick="pinKey('del')" style="font-size:18px;">⌫</button>
+        <button class="pin-key" onclick="pinKey('0')">0</button>
+        <button class="pin-key" onclick="pinKey('ok')" style="background:var(--accent);color:#fff;font-size:14px;font-weight:700;">OK</button>
+      </div>
+      <p class="help-text text-center" style="margin-top:20px;">PIN predefinito: 1234 — cambialo subito nelle impostazioni.</p>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: DASHBOARD
+       ================================================================ -->
+  <div id="page-dashboard" class="page">
+    <div class="topbar">
+      <span class="topbar-title">💅 <span class="biz-name">Mary Jo Nails</span></span>
+      <button class="topbar-action" onclick="doLogout()">Esci</button>
+    </div>
+    <div class="content">
+      <!-- Quick action buttons -->
+      <div class="quick-actions">
+        <button class="quick-btn accent" onclick="openNewSale()">
+          <span class="quick-btn-icon">💰</span>
+          <span class="quick-btn-label">Nuovo incasso</span>
+        </button>
+        <button class="quick-btn green" onclick="openNewExpense()">
+          <span class="quick-btn-icon">🧾</span>
+          <span class="quick-btn-label">Nuova spesa</span>
+        </button>
+        <button class="quick-btn" onclick="openSalesList()">
+          <span class="quick-btn-icon">📋</span>
+          <span class="quick-btn-label">Ricevute</span>
+        </button>
+        <button class="quick-btn" onclick="openExpensesList()">
+          <span class="quick-btn-icon">💸</span>
+          <span class="quick-btn-label">Spese</span>
+        </button>
+        <button class="quick-btn" onclick="openOpenPayments()">
+          <span class="quick-btn-icon">⏳</span>
+          <span class="quick-btn-label">Da incassare</span>
+        </button>
+        <button class="quick-btn" onclick="openYearlySummary()">
+          <span class="quick-btn-icon">📊</span>
+          <span class="quick-btn-label">Jahresabschluss</span>
+        </button>
+        <button class="quick-btn" onclick="openSettings()">
+          <span class="quick-btn-icon">⚙️</span>
+          <span class="quick-btn-label">Impostazioni</span>
+        </button>
+        <button class="quick-btn" onclick="openBackupPage()">
+          <span class="quick-btn-icon">💾</span>
+          <span class="quick-btn-label">Backup</span>
+        </button>
+      </div>
+      <!-- Dashboard content loaded dynamically -->
+      <div id="dashboard-content"></div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: NEW SALE
+       ================================================================ -->
+  <div id="page-new-sale" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-dashboard')">←</button>
+      <span class="topbar-title">💰 Nuovo incasso</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <form id="sale-form" onsubmit="event.preventDefault();">
+
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="sale-date">
+        </div>
+
+        <div class="section-header">Cliente (opzionale)</div>
+        <div class="form-group">
+          <label>Nome cliente</label>
+          <input type="text" id="sale-customer-name" placeholder="Es: Maria Rossi" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Telefono</label>
+          <input type="tel" id="sale-customer-phone" placeholder="+41 79 000 00 00">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="sale-customer-email" placeholder="email@esempio.ch">
+        </div>
+
+        <div class="section-header">Servizi</div>
+        <div id="sale-items-container"></div>
+        <div class="form-group">
+          <label>Aggiungi servizio</label>
+          <select id="service-selector" onchange="addServiceFromSelect()">
+            <option value="">+ Seleziona servizio...</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-gray btn-sm" onclick="addCustomItem()" style="margin-bottom:16px;">+ Servizio personalizzato</button>
+
+        <div class="section-header">Totali</div>
+        <div class="form-group">
+          <label>Sconto (CHF)</label>
+          <input type="number" id="sale-discount" placeholder="0.00" step="0.05" min="0" value="0">
+        </div>
+        <div class="form-group">
+          <label>Mancia (CHF)</label>
+          <input type="number" id="sale-tip" placeholder="0.00" step="0.05" min="0" value="0">
+        </div>
+        <div class="card" style="text-align:center;margin-bottom:16px;">
+          <div class="card-title">TOTALE</div>
+          <div class="card-value green" id="sale-total-display">CHF 0.00</div>
+        </div>
+
+        <div class="section-header">Pagamento</div>
+        <div class="form-group">
+          <label>Metodo di pagamento</label>
+          <select id="sale-payment-method">
+            <option value="">Seleziona...</option>
+            <option value="Contanti">💵 Contanti</option>
+            <option value="TWINT">📱 TWINT</option>
+            <option value="Carta">💳 Carta</option>
+            <option value="Bonifico">🏦 Bonifico</option>
+            <option value="Altro">Altro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Stato pagamento</label>
+          <select id="sale-payment-status">
+            <option value="Pagato">✅ Pagato</option>
+            <option value="Aperto">⏳ Aperto (da incassare)</option>
+            <option value="Pagato parzialmente">🔶 Pagato parzialmente</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Note (opzionale)</label>
+          <textarea id="sale-notes" placeholder="Note aggiuntive..."></textarea>
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="submitSale()">💾 Salva e genera ricevuta</button>
+        <button type="button" class="btn btn-gray" onclick="showPage('page-dashboard')">Annulla</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: SALE RESULT (after saving)
+       ================================================================ -->
+  <div id="page-sale-result" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-dashboard')">←</button>
+      <span class="topbar-title">✅ Ricevuta creata</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <input type="hidden" id="current-sale-id">
+      <input type="hidden" id="current-sale-email">
+
+      <div class="card text-center" style="padding:24px;">
+        <div style="font-size:48px;">🎉</div>
+        <div class="card-title" style="margin-top:8px;">Ricevuta</div>
+        <div style="font-size:24px;font-weight:800;" id="result-receipt-number">—</div>
+        <div class="card-value green" style="margin-top:8px;" id="result-total">CHF 0.00</div>
+        <div class="card-sub" id="result-customer"></div>
+      </div>
+
+      <div class="section-header">Azioni</div>
+      <a id="result-pdf-btn" href="#" target="_blank" class="btn btn-blue">📄 Apri PDF ricevuta</a>
+      <button class="btn btn-outline" id="result-email-btn">✉️ Invia per email</button>
+      <button class="btn btn-success" id="result-whatsapp-btn">💬 Prepara messaggio WhatsApp</button>
+      <button class="btn btn-gray" onclick="openNewSale()">+ Nuovo incasso</button>
+      <button class="btn btn-gray" onclick="showPage('page-dashboard')">← Dashboard</button>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: SALE DETAIL
+       ================================================================ -->
+  <div id="page-sale-detail" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-sales-list')">←</button>
+      <span class="topbar-title">📋 Dettaglio ricevuta</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <div id="sale-detail-content"></div>
+      <hr class="divider">
+      <button id="sale-detail-cancel-btn" class="btn btn-danger" style="margin-top:8px;">🚫 Annulla ricevuta (Storno)</button>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: SALES LIST
+       ================================================================ -->
+  <div id="page-sales-list" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-dashboard')">←</button>
+      <span class="topbar-title">📋 Ricevute</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <select id="sales-year-filter" onchange="loadSalesList(parseInt(this.value))" style="flex:1;">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+          <option value="2027">2027</option>
+        </select>
+        <button class="btn btn-outline btn-sm mb-0" onclick="loadSalesList(parseInt(document.getElementById('sales-year-filter').value))">Aggiorna</button>
+      </div>
+      <div id="sales-list-container"></div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: NEW EXPENSE
+       ================================================================ -->
+  <div id="page-new-expense" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-dashboard')">←</button>
+      <span class="topbar-title">🧾 Nuova spesa</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <form id="expense-form" onsubmit="event.preventDefault();">
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="expense-date">
+        </div>
+        <div class="form-group">
+          <label>Fornitore / Descrizione</label>
+          <input type="text" id="expense-vendor" placeholder="Es: Douglas, Amazon, ...">
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="expense-category">
+            <option value="">Seleziona categoria...</option>
+            <option>Prodotti unghie / materiale</option>
+            <option>Attrezzi e apparecchi</option>
+            <option>Affitto / studio</option>
+            <option>Marketing / social media / sito web</option>
+            <option>Telefono / internet</option>
+            <option>Corsi / formazione</option>
+            <option>Assicurazioni</option>
+            <option>Commissioni banca / TWINT / carta</option>
+            <option>Trasporti</option>
+            <option>Materiale ufficio</option>
+            <option>Altro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Importo (CHF)</label>
+          <input type="number" id="expense-amount" step="0.05" min="0" placeholder="0.00" oninput="calcDeductible()">
+        </div>
+        <div class="form-group">
+          <label>Quota aziendale (%)</label>
+          <input type="number" id="expense-biz-pct" min="0" max="100" value="100" oninput="calcDeductible()">
+          <p class="help-text">Percentuale deducibile come spesa aziendale</p>
+          <p style="font-weight:600;color:#27ae60;margin-top:6px;">Importo deducibile: <span id="expense-deductible-display">CHF 0.00</span></p>
+        </div>
+        <div class="form-group">
+          <label>Metodo di pagamento</label>
+          <select id="expense-payment-method">
+            <option value="Contanti">💵 Contanti</option>
+            <option value="Carta">💳 Carta</option>
+            <option value="TWINT">📱 TWINT</option>
+            <option value="Bonifico">🏦 Bonifico</option>
+            <option value="Altro">Altro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Allegato (foto scontrino, PDF)</label>
+          <input type="file" id="expense-file" accept="image/*,application/pdf" onchange="handleExpenseFile(this)"
+            style="padding:10px;font-size:14px;">
+          <p class="help-text" id="expense-file-name">Nessun file selezionato</p>
+        </div>
+        <div class="form-group">
+          <label>Note (opzionale)</label>
+          <textarea id="expense-notes" placeholder="Note aggiuntive..."></textarea>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="submitExpense()">💾 Salva spesa</button>
+        <button type="button" class="btn btn-gray" onclick="showPage('page-dashboard')">Annulla</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: EXPENSES LIST
+       ================================================================ -->
+  <div id="page-expenses-list" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-dashboard')">←</button>
+      <span class="topbar-title">💸 Spese</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <select id="expenses-year-filter" onchange="loadExpensesList(parseInt(this.value))" style="flex:1;">
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+          <option value="2027">2027</option>
+        </select>
+        <button class="btn btn-outline btn-sm mb-0" onclick="loadExpensesList(parseInt(document.getElementById('expenses-year-filter').value))">Aggiorna</button>
+      </div>
+      <div id="expenses-list-container"></div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: OPEN PAYMENTS
+       ================================================================ -->
+  <div id="page-open-payments" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-dashboard')">←</button>
+      <span class="topbar-title">⏳ Da incassare</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <div id="open-payments-container"></div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: YEARLY CLOSING
+       ================================================================ -->
+  <div id="page-yearly" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-dashboard')">←</button>
+      <span class="topbar-title">📊 Jahresabschluss</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <div class="form-group">
+        <label>Anno</label>
+        <select id="yearly-year-select">
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+        </select>
+      </div>
+      <div id="yearly-content"></div>
+      <div class="form-group" style="margin-top:16px;">
+        <label>Note per il report PDF</label>
+        <textarea id="yearly-notes" placeholder="Note per il Jahresabschluss..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="generateYearlyPdf()">📄 Genera report PDF</button>
+      <button class="btn btn-outline" onclick="openPrivateTx()">+ Transazione privata</button>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: PRIVATE TRANSACTION
+       ================================================================ -->
+  <div id="page-private-tx" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-yearly')">←</button>
+      <span class="topbar-title">🔄 Transazione privata</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="private-tx-date">
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="private-tx-type">
+          <option value="withdrawal">Prelievo privato (Privatbezug)</option>
+          <option value="contribution">Apporto privato (Privateinlage)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Importo (CHF)</label>
+        <input type="number" id="private-tx-amount" step="0.05" min="0" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label>Note</label>
+        <textarea id="private-tx-notes" placeholder="Descrizione..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="submitPrivateTx()">💾 Salva</button>
+      <button class="btn btn-gray" onclick="showPage('page-yearly')">Annulla</button>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: SETTINGS
+       ================================================================ -->
+  <div id="page-settings" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-dashboard')">←</button>
+      <span class="topbar-title">⚙️ Impostazioni</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <div class="section-header">Dati aziendali</div>
+      <div class="form-group">
+        <label>Nome attività</label>
+        <input type="text" id="setting-businessName" placeholder="Mary Jo Nails">
+      </div>
+      <div class="form-group">
+        <label>Nome titolare</label>
+        <input type="text" id="setting-ownerName" placeholder="Maria Rossi">
+      </div>
+      <div class="form-group">
+        <label>Indirizzo</label>
+        <textarea id="setting-address" placeholder="Via Roma 1&#10;6900 Lugano"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Telefono</label>
+        <input type="tel" id="setting-phone" placeholder="+41 79 000 00 00">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="setting-email" placeholder="info@maryjOnails.ch">
+      </div>
+      <div class="form-group">
+        <label>Sito web / Instagram</label>
+        <input type="text" id="setting-website" placeholder="www.maryjOnails.ch o @maryjOnails">
+      </div>
+
+      <div class="section-header">Contabilità</div>
+      <div class="form-group">
+        <label>Modalità IVA / MWST</label>
+        <select id="setting-vatMode">
+          <option value="not_registered">Non soggetta a IVA/MWST</option>
+          <option value="registered">Soggetta a IVA/MWST (futuro)</option>
+        </select>
+        <p class="help-text">La soglia di registrazione IVA in Svizzera è CHF 100'000 di fatturato annuo.</p>
+      </div>
+      <div class="form-group">
+        <label>Invio email abilitato</label>
+        <select id="setting-emailEnabled">
+          <option value="true">Sì — usa Gmail/MailApp</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Salva impostazioni</button>
+
+      <div class="section-header">Sicurezza</div>
+      <button class="btn btn-outline" onclick="changePin()">🔐 Cambia PIN</button>
+
+      <div class="section-header">Servizi</div>
+      <button class="btn btn-gray" onclick="openServicesPage()">✂️ Gestisci servizi</button>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: SERVICES
+       ================================================================ -->
+  <div id="page-services" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-settings')">←</button>
+      <span class="topbar-title">✂️ Servizi</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <button class="btn btn-success" onclick="addNewService()" style="margin-bottom:16px;">+ Aggiungi servizio</button>
+      <div id="services-list-container"></div>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       PAGE: BACKUP & EXPORT
+       ================================================================ -->
+  <div id="page-backup" class="page">
+    <div class="topbar">
+      <button class="topbar-back" onclick="showPage('page-dashboard')">←</button>
+      <span class="topbar-title">💾 Backup &amp; Export</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <div class="form-group">
+        <label>Anno per export CSV</label>
+        <select id="backup-year-select">
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+        </select>
+      </div>
+
+      <div class="section-header">Backup completo</div>
+      <div class="card">
+        <p style="font-size:14px;color:#6b7280;margin-bottom:12px;">Crea un backup JSON di tutti i dati e salvalo in Google Drive (cartella Backup).</p>
+        <button class="btn btn-primary mb-0" onclick="doBackup()">💾 Crea backup ora</button>
+      </div>
+
+      <div class="section-header">Export CSV</div>
+      <div class="card">
+        <p style="font-size:14px;color:#6b7280;margin-bottom:12px;">Esporta vendite, spese e transazioni private in CSV per l'anno selezionato. I file vengono salvati in Google Drive (cartella Export).</p>
+        <button class="btn btn-blue mb-0" onclick="doExportAll()">📊 Esporta tutti i CSV</button>
+      </div>
+
+      <div id="export-links"></div>
+
+      <div class="section-header">Informazioni</div>
+      <div class="card">
+        <p style="font-size:13px;color:#6b7280;">
+          Tutti i file vengono salvati in Google Drive nella cartella <strong>Mary Jo Nails - Contabilità</strong>.<br><br>
+          Struttura cartelle:<br>
+          📁 Ricevute / [anno]<br>
+          📁 Spese / [anno]<br>
+          📁 Jahresabschluss / [anno]<br>
+          📁 Backup / [anno]<br>
+          📁 Export / [anno]
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .app-shell -->
+
+<?!= include('JavaScript'); ?>
+</body>
+</html>

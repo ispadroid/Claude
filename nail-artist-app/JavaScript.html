@@ -1,0 +1,1050 @@
+<script>
+// =====================================================================
+// JavaScript.html — Client-side application logic
+// Single-page app with google.script.run backend calls.
+// =====================================================================
+
+var App = {
+  sessionToken: null,
+  currentYear: new Date().getFullYear(),
+  currentMonth: new Date().getMonth() + 1,
+  services: [],
+  settings: {},
+
+  init: function() {
+    this.sessionToken = sessionStorage.getItem('sessionToken');
+    showSpinner(true);
+    google.script.run
+      .withSuccessHandler(function(status) {
+        showSpinner(false);
+        if (!status.ready) {
+          showToast('Errore inizializzazione: ' + (status.error || 'sconosciuto'), 'error');
+          return;
+        }
+        document.getElementById('login-biz-name').textContent = status.businessName || 'Mary Jo Nails';
+        if (App.sessionToken) {
+          google.script.run
+            .withSuccessHandler(function(res) {
+              if (res && res.valid) {
+                App.enterApp();
+              } else {
+                App.sessionToken = null;
+                sessionStorage.removeItem('sessionToken');
+                showPage('page-login');
+              }
+            })
+            .withFailureHandler(function() { showPage('page-login'); })
+            .api_validateSession(App.sessionToken);
+        } else {
+          showPage('page-login');
+        }
+      })
+      .withFailureHandler(function(e) {
+        showSpinner(false);
+        showToast('Errore: ' + e.message, 'error');
+        showPage('page-login');
+      })
+      .api_getInitStatus();
+  },
+
+  enterApp: function() {
+    showPage('page-dashboard');
+    App.loadDashboard();
+    App.loadServices();
+    App.loadSettings();
+  }
+};
+
+// =====================================================================
+// Routing
+// =====================================================================
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  var el = document.getElementById(pageId);
+  if (el) {
+    el.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+}
+
+// =====================================================================
+// Spinner / Toast
+// =====================================================================
+function showSpinner(show) {
+  var el = document.getElementById('spinner-overlay');
+  if (el) el.classList.toggle('active', show);
+}
+
+function showToast(msg, type) {
+  var container = document.getElementById('toast-container');
+  var toast = document.createElement('div');
+  toast.className = 'toast' + (type ? ' ' + type : '');
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3500);
+}
+
+// =====================================================================
+// PIN Login
+// =====================================================================
+var pinBuffer = '';
+
+function pinKey(v) {
+  if (v === 'del') {
+    pinBuffer = pinBuffer.slice(0, -1);
+  } else if (v === 'ok') {
+    doLogin();
+    return;
+  } else {
+    if (pinBuffer.length >= 6) return;
+    pinBuffer += v;
+  }
+  updatePinDisplay();
+  if (pinBuffer.length >= 4) {
+    // Auto-submit for 4+ digit PINs after short delay
+    setTimeout(function() { if (pinBuffer.length >= 4) doLogin(); }, 300);
+  }
+}
+
+function updatePinDisplay() {
+  for (var i = 0; i < 6; i++) {
+    var dot = document.getElementById('pin-dot-' + i);
+    if (dot) dot.classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function doLogin() {
+  var pin = pinBuffer;
+  pinBuffer = '';
+  updatePinDisplay();
+  if (!pin) return;
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(res) {
+      showSpinner(false);
+      if (res.success) {
+        App.sessionToken = res.sessionToken;
+        sessionStorage.setItem('sessionToken', res.sessionToken);
+        App.enterApp();
+        if (res.firstRun) {
+          showToast('Benvenuta! PIN predefinito: 1234. Cambialo nelle impostazioni.', 'success');
+        }
+      } else {
+        showToast(res.error || 'PIN errato', 'error');
+      }
+    })
+    .withFailureHandler(function(e) {
+      showSpinner(false);
+      showToast('Errore: ' + e.message, 'error');
+    })
+    .api_verifyPin(pin);
+}
+
+function doLogout() {
+  google.script.run.api_logout(App.sessionToken);
+  App.sessionToken = null;
+  sessionStorage.removeItem('sessionToken');
+  App.services = [];
+  App.settings = {};
+  showPage('page-login');
+  showToast('Logout effettuato.', '');
+}
+
+// =====================================================================
+// Settings & Services load
+// =====================================================================
+function App_loadSettings() {
+  google.script.run
+    .withSuccessHandler(function(s) {
+      App.settings = s || {};
+      // Update business name in header
+      var names = document.querySelectorAll('.biz-name');
+      names.forEach(function(n) { n.textContent = s.businessName || 'Mary Jo Nails'; });
+    })
+    .withFailureHandler(function() {})
+    .api_getSettings(App.sessionToken);
+}
+App.loadSettings = App_loadSettings;
+
+function App_loadServices() {
+  google.script.run
+    .withSuccessHandler(function(list) { App.services = list || []; })
+    .withFailureHandler(function() {})
+    .api_getServices(App.sessionToken);
+}
+App.loadServices = App_loadServices;
+
+// =====================================================================
+// Dashboard
+// =====================================================================
+function App_loadDashboard() {
+  var content = document.getElementById('dashboard-content');
+  content.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto;"></div><p>Caricamento...</p></div>';
+  google.script.run
+    .withSuccessHandler(renderDashboard)
+    .withFailureHandler(function(e) {
+      content.innerHTML = '<p class="text-muted">Errore caricamento dashboard.</p>';
+    })
+    .api_getDashboard(App.sessionToken);
+}
+App.loadDashboard = App_loadDashboard;
+
+function renderDashboard(d) {
+  var content = document.getElementById('dashboard-content');
+  var year = d.year || App.currentYear;
+  var month = d.month || App.currentMonth;
+
+  var warningHtml = (d.warnings || []).map(function(w) {
+    return '<div class="warning-banner">' + w + '</div>';
+  }).join('');
+
+  // Payment method split
+  var pmHtml = Object.keys(d.paymentSplit || {}).map(function(m) {
+    return '<div class="summary-row"><span>' + m + '</span><span>' + fmt(d.paymentSplit[m]) + '</span></div>';
+  }).join('') || '<p class="text-muted">Nessun dato.</p>';
+
+  // Top services
+  var topSvcHtml = (d.topServices || []).map(function(s) {
+    return '<div class="summary-row"><span>' + esc(s.name) + '</span><span>' + fmt(s.totalCents) + '</span></div>';
+  }).join('') || '<p class="text-muted">Nessun servizio.</p>';
+
+  // Monthly bar chart
+  var chartHtml = buildBarChart(d.monthlyOverview || []);
+
+  // Open payments
+  var openBadge = d.openCount > 0
+    ? '<span class="badge badge-orange">' + d.openCount + ' aperti</span>'
+    : '<span class="badge badge-green">Tutti pagati</span>';
+
+  content.innerHTML = warningHtml +
+    '<div class="grid-2">' +
+    kpi('Incasso mensile', fmt(d.monthRevenueCents), 'green', 'Mese corrente') +
+    kpi('Spese mensili', fmt(d.monthExpenseCents), 'red', 'Mese corrente') +
+    '</div>' +
+    '<div class="grid-2">' +
+    kpi('Utile mensile', fmt(d.monthProfitCents), d.monthProfitCents >= 0 ? 'green' : 'red', 'Mese corrente') +
+    kpi('Non incassato', fmt(d.openAmountCents), 'orange', openBadge) +
+    '</div>' +
+    '<div class="section-header">Anno ' + year + '</div>' +
+    '<div class="grid-2">' +
+    kpi('Fatturato', fmt(d.yearRevenueCents), 'blue', d.yearReceiptCount + ' ricevute') +
+    kpi('Spese', fmt(d.yearExpenseCents), 'red', 'Deducibili') +
+    '</div>' +
+    '<div class="card">' +
+    '<div class="card-title">Utile annuo</div>' +
+    '<div class="card-value ' + (d.yearProfitCents >= 0 ? 'green' : 'red') + '">' + fmt(d.yearProfitCents) + '</div>' +
+    '</div>' +
+    '<div class="section-header">Andamento ' + year + '</div>' +
+    '<div class="card">' + chartHtml + '</div>' +
+    '<div class="section-header">Metodi di pagamento (' + year + ')</div>' +
+    '<div class="card">' + pmHtml + '</div>' +
+    '<div class="section-header">Top servizi (' + year + ')</div>' +
+    '<div class="card">' + topSvcHtml + '</div>';
+}
+
+function kpi(title, value, color, sub) {
+  return '<div class="card"><div class="card-title">' + title + '</div>' +
+    '<div class="card-value ' + color + '">' + value + '</div>' +
+    '<div class="card-sub">' + (sub || '') + '</div></div>';
+}
+
+function buildBarChart(months) {
+  var maxVal = Math.max.apply(null, months.map(function(m) { return Math.max(m.revenueCents, m.expenseCents); })) || 1;
+  var cols = months.map(function(m) {
+    var rH = Math.max(4, Math.round((m.revenueCents / maxVal) * 72));
+    var eH = Math.max(4, Math.round((m.expenseCents / maxVal) * 72));
+    return '<div class="bar-col">' +
+      '<div style="display:flex;align-items:flex-end;gap:1px;">' +
+      '<div class="bar revenue" style="height:' + rH + 'px;"></div>' +
+      '<div class="bar expense" style="height:' + eH + 'px;"></div>' +
+      '</div>' +
+      '<div class="bar-label">' + m.label + '</div></div>';
+  }).join('');
+  return '<div class="bar-chart">' + cols + '</div>' +
+    '<div style="display:flex;gap:12px;font-size:11px;color:#9ca3af;margin-top:4px;">' +
+    '<span>🟢 Entrate</span><span>🔴 Spese</span></div>';
+}
+
+// =====================================================================
+// New Sale Form
+// =====================================================================
+var saleItems = [];
+
+function openNewSale() {
+  saleItems = [];
+  document.getElementById('sale-form').reset();
+  document.getElementById('sale-date').value = todayISO();
+  document.getElementById('sale-items-container').innerHTML = '';
+  document.getElementById('sale-total-display').textContent = 'CHF 0.00';
+  renderSaleItemsContainer();
+  showPage('page-new-sale');
+}
+
+function renderSaleItemsContainer() {
+  var container = document.getElementById('sale-items-container');
+  if (saleItems.length === 0) {
+    container.innerHTML = '<p class="text-muted text-center" style="padding:12px;">Nessun servizio aggiunto.</p>';
+  } else {
+    container.innerHTML = saleItems.map(function(item, idx) {
+      return '<div class="sale-item-card">' +
+        '<div class="sale-item-header">' +
+        '<span class="sale-item-title">' + esc(item.description) + '</span>' +
+        '<button class="btn btn-danger btn-sm mb-0" onclick="removeSaleItem(' + idx + ')">✕</button>' +
+        '</div>' +
+        '<div class="input-row">' +
+        '<div><label style="font-size:12px;">Qtà</label>' +
+        '<input type="number" min="1" value="' + item.quantity + '" onchange="updateSaleItem(' + idx + ',\'quantity\',this.value)" style="padding:8px;"></div>' +
+        '<div><label style="font-size:12px;">Prezzo (CHF)</label>' +
+        '<input type="number" step="0.05" value="' + (item.unitPriceCents/100).toFixed(2) + '" onchange="updateSaleItem(' + idx + ',\'price\',this.value)" style="padding:8px;"></div>' +
+        '</div>' +
+        '<div style="text-align:right;font-weight:600;font-size:14px;margin-top:4px;">= CHF ' + (item.totalCents/100).toFixed(2) + '</div>' +
+        '</div>';
+    }).join('');
+  }
+  updateSaleTotal();
+}
+
+function addServiceFromSelect() {
+  var sel = document.getElementById('service-selector');
+  var idx = sel.selectedIndex;
+  if (idx === 0) return;
+  var opt = sel.options[idx];
+  var price = parseFloat(opt.dataset.price || '0') * 100;
+  saleItems.push({
+    description: opt.textContent,
+    quantity: 1,
+    unitPriceCents: price,
+    totalCents: price
+  });
+  sel.selectedIndex = 0;
+  renderSaleItemsContainer();
+}
+
+function addCustomItem() {
+  var desc = prompt('Nome del servizio:');
+  if (!desc) return;
+  var priceStr = prompt('Prezzo (CHF):');
+  var price = parseFloat(priceStr) * 100 || 0;
+  saleItems.push({ description: desc, quantity: 1, unitPriceCents: price, totalCents: price });
+  renderSaleItemsContainer();
+}
+
+function removeSaleItem(idx) {
+  saleItems.splice(idx, 1);
+  renderSaleItemsContainer();
+}
+
+function updateSaleItem(idx, field, value) {
+  if (field === 'quantity') saleItems[idx].quantity = parseInt(value) || 1;
+  if (field === 'price') saleItems[idx].unitPriceCents = Math.round(parseFloat(value) * 100) || 0;
+  saleItems[idx].totalCents = saleItems[idx].quantity * saleItems[idx].unitPriceCents;
+  renderSaleItemsContainer();
+}
+
+function updateSaleTotal() {
+  var subtotal = saleItems.reduce(function(s, i) { return s + i.totalCents; }, 0);
+  var discount = Math.round(parseFloat(document.getElementById('sale-discount').value || '0') * 100);
+  var tip = Math.round(parseFloat(document.getElementById('sale-tip').value || '0') * 100);
+  var total = subtotal - discount + tip;
+  document.getElementById('sale-total-display').textContent = 'CHF ' + (total / 100).toFixed(2);
+}
+
+function submitSale() {
+  if (saleItems.length === 0) { showToast('Aggiungi almeno un servizio.', 'error'); return; }
+  var payMethod = document.getElementById('sale-payment-method').value;
+  if (!payMethod) { showToast('Seleziona il metodo di pagamento.', 'error'); return; }
+
+  var data = {
+    date: document.getElementById('sale-date').value,
+    customerName: document.getElementById('sale-customer-name').value.trim(),
+    customerPhone: document.getElementById('sale-customer-phone').value.trim(),
+    customerEmail: document.getElementById('sale-customer-email').value.trim(),
+    items: saleItems,
+    paymentMethod: payMethod,
+    paymentStatus: document.getElementById('sale-payment-status').value,
+    discountCents: Math.round(parseFloat(document.getElementById('sale-discount').value || '0') * 100),
+    tipCents: Math.round(parseFloat(document.getElementById('sale-tip').value || '0') * 100),
+    notes: document.getElementById('sale-notes').value.trim()
+  };
+
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(res) {
+      showSpinner(false);
+      if (res.success) {
+        showSaleResult(res);
+      } else {
+        showToast(res.error || 'Errore durante il salvataggio.', 'error');
+      }
+    })
+    .withFailureHandler(function(e) {
+      showSpinner(false);
+      showToast('Errore: ' + e.message, 'error');
+    })
+    .api_createSale(App.sessionToken, data);
+}
+
+function showSaleResult(res) {
+  document.getElementById('result-receipt-number').textContent = res.receiptNumber;
+  document.getElementById('result-total').textContent = 'CHF ' + (res.totalCents / 100).toFixed(2);
+  document.getElementById('result-customer').textContent = res.customerName || '—';
+  var pdfBtn = document.getElementById('result-pdf-btn');
+  if (res.pdfUrl) {
+    pdfBtn.href = res.pdfUrl;
+    pdfBtn.style.display = 'flex';
+  } else {
+    pdfBtn.style.display = 'none';
+  }
+  document.getElementById('result-email-btn').onclick = function() { sendEmailForSale(res); };
+  document.getElementById('result-whatsapp-btn').onclick = function() { prepareWhatsApp(res.saleId); };
+  document.getElementById('current-sale-id').value = res.saleId;
+  document.getElementById('current-sale-email').value = res.customerEmail || '';
+  showPage('page-sale-result');
+  App.loadDashboard(); // refresh dashboard in background
+}
+
+function sendEmailForSale(res) {
+  var email = document.getElementById('current-sale-email').value.trim() ||
+    prompt('Inserisci email del cliente:');
+  if (!email) return;
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      if (r.success) {
+        showToast('Email inviata a ' + r.sentTo + '!', 'success');
+      } else {
+        showToast(r.error, 'error');
+      }
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_sendReceiptByEmail(App.sessionToken, document.getElementById('current-sale-id').value, email);
+}
+
+function prepareWhatsApp(saleId) {
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      if (!r.success) { showToast(r.error, 'error'); return; }
+      document.getElementById('wa-message-text').value = r.message;
+      document.getElementById('wa-phone-display').textContent = r.phone || '(numero non disponibile)';
+      var waBtn = document.getElementById('wa-open-btn');
+      if (r.waLink) {
+        waBtn.href = r.waLink;
+        waBtn.style.display = 'flex';
+      } else {
+        waBtn.style.display = 'none';
+      }
+      document.getElementById('wa-modal').classList.add('active');
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_buildWhatsAppMessage(App.sessionToken, saleId);
+}
+
+function copyWAMessage() {
+  var text = document.getElementById('wa-message-text').value;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() { showToast('Messaggio copiato!', 'success'); });
+  } else {
+    document.getElementById('wa-message-text').select();
+    document.execCommand('copy');
+    showToast('Messaggio copiato!', 'success');
+  }
+}
+
+function closeWAModal() { document.getElementById('wa-modal').classList.remove('active'); }
+
+// =====================================================================
+// Service selector population
+// =====================================================================
+function populateServiceSelector() {
+  var sel = document.getElementById('service-selector');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">+ Seleziona servizio...</option>';
+  (App.services || []).forEach(function(s) {
+    var opt = document.createElement('option');
+    opt.value = s.serviceId;
+    opt.textContent = s.name + (s.defaultPriceCents ? ' (CHF ' + (s.defaultPriceCents/100).toFixed(2) + ')' : '');
+    opt.dataset.price = (s.defaultPriceCents / 100).toFixed(2);
+    sel.appendChild(opt);
+  });
+}
+
+// =====================================================================
+// New Expense Form
+// =====================================================================
+function openNewExpense() {
+  document.getElementById('expense-form').reset();
+  document.getElementById('expense-date').value = todayISO();
+  document.getElementById('expense-biz-pct').value = '100';
+  showPage('page-new-expense');
+}
+
+function calcDeductible() {
+  var amount = parseFloat(document.getElementById('expense-amount').value) || 0;
+  var pct = parseFloat(document.getElementById('expense-biz-pct').value) || 100;
+  var ded = (amount * pct / 100).toFixed(2);
+  document.getElementById('expense-deductible-display').textContent = 'CHF ' + ded;
+}
+
+var expenseAttachment = null;
+
+function handleExpenseFile(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    expenseAttachment = { base64: e.target.result, mimeType: file.type, name: file.name };
+    document.getElementById('expense-file-name').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitExpense() {
+  var amount = parseFloat(document.getElementById('expense-amount').value);
+  if (!amount || amount <= 0) { showToast('Inserisci un importo valido.', 'error'); return; }
+
+  var data = {
+    date: document.getElementById('expense-date').value,
+    vendor: document.getElementById('expense-vendor').value.trim(),
+    category: document.getElementById('expense-category').value,
+    amountCents: Math.round(amount * 100),
+    businessPercentage: parseInt(document.getElementById('expense-biz-pct').value) || 100,
+    paymentMethod: document.getElementById('expense-payment-method').value,
+    notes: document.getElementById('expense-notes').value.trim()
+  };
+
+  if (expenseAttachment) {
+    data.attachmentBase64 = expenseAttachment.base64;
+    data.attachmentMimeType = expenseAttachment.mimeType;
+    data.attachmentFileName = expenseAttachment.name;
+  }
+
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(res) {
+      showSpinner(false);
+      if (res.success) {
+        showToast('Spesa salvata!', 'success');
+        expenseAttachment = null;
+        showPage('page-dashboard');
+        App.loadDashboard();
+      } else {
+        showToast(res.error || 'Errore', 'error');
+      }
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_createExpense(App.sessionToken, data);
+}
+
+// =====================================================================
+// Sales list
+// =====================================================================
+function openSalesList() {
+  showPage('page-sales-list');
+  loadSalesList();
+}
+
+function loadSalesList(year, month) {
+  year = year || App.currentYear;
+  var container = document.getElementById('sales-list-container');
+  container.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto;"></div></div>';
+  google.script.run
+    .withSuccessHandler(function(rows) { renderSalesList(rows); })
+    .withFailureHandler(function(e) { container.innerHTML = '<p class="text-muted">Errore: ' + e.message + '</p>'; })
+    .api_getSales(App.sessionToken, year, month || null);
+}
+
+function renderSalesList(rows) {
+  var container = document.getElementById('sales-list-container');
+  if (!rows || rows.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🧾</div><p>Nessuna ricevuta.</p></div>';
+    return;
+  }
+  container.innerHTML = rows.map(function(r) {
+    var badge = paymentBadge(r.paymentStatus);
+    return '<div class="list-item" onclick="openSaleDetail(\'' + r.saleId + '\')">' +
+      '<div class="list-item-left">' +
+      '<div class="list-item-title">' + esc(r.receiptNumber) + ' — ' + esc(r.customerNameSnapshot || 'Cliente') + '</div>' +
+      '<div class="list-item-sub">' + formatDateStr(r.date) + ' · ' + esc(r.paymentMethod) + ' ' + badge + '</div>' +
+      '</div>' +
+      '<div class="list-item-right"><div class="list-item-amount">' + fmt(r.totalCents) + '</div></div>' +
+      '</div>';
+  }).join('');
+}
+
+function openSaleDetail(saleId) {
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(data) {
+      showSpinner(false);
+      if (!data) { showToast('Ricevuta non trovata.', 'error'); return; }
+      renderSaleDetail(data.sale, data.items);
+      showPage('page-sale-detail');
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_getSaleById(App.sessionToken, saleId);
+}
+
+function renderSaleDetail(sale, items) {
+  var d = document.getElementById('sale-detail-content');
+  var itemRows = (items || []).map(function(i) {
+    return '<div class="summary-row"><span>' + esc(i.description) + ' ×' + i.quantity + '</span><span>' + fmt(i.totalCents) + '</span></div>';
+  }).join('');
+  var pdfBtn = sale.receiptPdfUrl
+    ? '<a href="' + sale.receiptPdfUrl + '" target="_blank" class="btn btn-blue btn-sm mb-0">📄 Apri PDF</a>'
+    : '<button class="btn btn-gray btn-sm mb-0" onclick="regeneratePdf(\'' + sale.saleId + '\')">🔄 Genera PDF</button>';
+  var markPaidBtn = (sale.paymentStatus !== 'Pagato')
+    ? '<button class="btn btn-success btn-sm mb-0" onclick="markPaid(\'' + sale.saleId + '\')">✅ Segna come pagato</button>'
+    : '';
+
+  d.innerHTML =
+    '<div class="card">' +
+    '<div class="summary-row"><span class="card-title">Ricevuta</span><span style="font-weight:700;">' + esc(sale.receiptNumber) + '</span></div>' +
+    '<div class="summary-row"><span>Data</span><span>' + formatDateStr(sale.date) + '</span></div>' +
+    '<div class="summary-row"><span>Cliente</span><span>' + esc(sale.customerNameSnapshot || '—') + '</span></div>' +
+    '<div class="summary-row"><span>Pagamento</span><span>' + esc(sale.paymentMethod) + '</span></div>' +
+    '<div class="summary-row"><span>Stato</span><span>' + paymentBadge(sale.paymentStatus) + '</span></div>' +
+    '</div>' +
+    '<div class="card">' + itemRows +
+    (safeIntClient(sale.discountCents) > 0 ? '<div class="summary-row" style="color:#e74c3c;"><span>Sconto</span><span>− ' + fmt(sale.discountCents) + '</span></div>' : '') +
+    (safeIntClient(sale.tipCents) > 0 ? '<div class="summary-row"><span>Mancia</span><span>' + fmt(sale.tipCents) + '</span></div>' : '') +
+    '<div class="summary-row total"><span>TOTALE</span><span>' + fmt(sale.totalCents) + '</span></div>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + pdfBtn + markPaidBtn + '</div>' +
+    '<div style="margin-top:12px;display:flex;gap:8px;">' +
+    '<button class="btn btn-outline btn-sm mb-0" onclick="prepareWhatsApp(\'' + sale.saleId + '\')">💬 WhatsApp</button>' +
+    '<button class="btn btn-gray btn-sm mb-0" onclick="sendEmailPrompt(\'' + sale.saleId + '\')">✉️ Email</button>' +
+    '</div>';
+
+  document.getElementById('sale-detail-cancel-btn').onclick = function() { confirmCancelSale(sale.saleId); };
+}
+
+function markPaid(saleId) {
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      if (r.success) { showToast('Segnato come pagato!', 'success'); openSaleDetail(saleId); }
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_markSaleAsPaid(App.sessionToken, saleId);
+}
+
+function regeneratePdf(saleId) {
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      if (r.fileId) { showToast('PDF generato!', 'success'); openSaleDetail(saleId); }
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_regenerateReceiptPdf(App.sessionToken, saleId);
+}
+
+function sendEmailPrompt(saleId) {
+  var email = prompt('Email del cliente:');
+  if (!email) return;
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      showToast(r.success ? 'Email inviata!' : r.error, r.success ? 'success' : 'error');
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_sendReceiptByEmail(App.sessionToken, saleId, email);
+}
+
+function confirmCancelSale(saleId) {
+  if (!confirm('Sei sicura di voler annullare questa ricevuta? L\'operazione non può essere annullata.')) return;
+  var reason = prompt('Motivo dell\'annullamento:') || 'Storno';
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      showToast('Ricevuta annullata.', '');
+      showPage('page-sales-list');
+      loadSalesList();
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_cancelSale(App.sessionToken, saleId, reason);
+}
+
+// =====================================================================
+// Expenses list
+// =====================================================================
+function openExpensesList() {
+  showPage('page-expenses-list');
+  loadExpensesList();
+}
+
+function loadExpensesList(year) {
+  year = year || App.currentYear;
+  var container = document.getElementById('expenses-list-container');
+  container.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto;"></div></div>';
+  google.script.run
+    .withSuccessHandler(function(rows) { renderExpensesList(rows); })
+    .withFailureHandler(function(e) { container.innerHTML = '<p class="text-muted">Errore: ' + e.message + '</p>'; })
+    .api_getExpenses(App.sessionToken, year, null);
+}
+
+function renderExpensesList(rows) {
+  var container = document.getElementById('expenses-list-container');
+  if (!rows || rows.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🧾</div><p>Nessuna spesa.</p></div>';
+    return;
+  }
+  container.innerHTML = rows.map(function(r) {
+    return '<div class="list-item">' +
+      '<div class="list-item-left">' +
+      '<div class="list-item-title">' + esc(r.vendor || r.category) + '</div>' +
+      '<div class="list-item-sub">' + formatDateStr(r.date) + ' · ' + esc(r.category) + '</div>' +
+      '</div>' +
+      '<div class="list-item-right">' +
+      '<div class="list-item-amount" style="color:#e74c3c;">− ' + fmt(r.amountCents) + '</div>' +
+      (r.deductibleAmountCents != r.amountCents ? '<div style="font-size:11px;color:#9ca3af;">Ded: ' + fmt(r.deductibleAmountCents) + '</div>' : '') +
+      '</div></div>';
+  }).join('');
+}
+
+// =====================================================================
+// Open payments
+// =====================================================================
+function openOpenPayments() {
+  showPage('page-open-payments');
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(rows) {
+      showSpinner(false);
+      var c = document.getElementById('open-payments-container');
+      if (!rows || rows.length === 0) {
+        c.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div><p>Tutti i pagamenti sono stati incassati!</p></div>';
+        return;
+      }
+      c.innerHTML = rows.map(function(r) {
+        return '<div class="list-item">' +
+          '<div class="list-item-left">' +
+          '<div class="list-item-title">' + esc(r.receiptNumber) + ' — ' + esc(r.customerNameSnapshot || 'Cliente') + '</div>' +
+          '<div class="list-item-sub">' + formatDateStr(r.date) + ' ' + paymentBadge(r.paymentStatus) + '</div>' +
+          '</div>' +
+          '<div class="list-item-right">' +
+          '<div class="list-item-amount">' + fmt(r.totalCents) + '</div>' +
+          '<button class="btn btn-success btn-sm mt-8 mb-0" onclick="markPaid(\'' + r.saleId + '\')">Incassato</button>' +
+          '</div></div>';
+      }).join('');
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_getOpenPayments(App.sessionToken);
+}
+
+// =====================================================================
+// Yearly closing
+// =====================================================================
+function openYearlySummary() {
+  document.getElementById('yearly-year-select').value = App.currentYear;
+  showPage('page-yearly');
+  loadYearlySummary(App.currentYear);
+}
+
+function loadYearlySummary(year) {
+  var container = document.getElementById('yearly-content');
+  container.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto;"></div></div>';
+  google.script.run
+    .withSuccessHandler(function(s) { renderYearlySummary(s); })
+    .withFailureHandler(function(e) { container.innerHTML = '<p class="text-muted">Errore: ' + e.message + '</p>'; })
+    .api_getYearlySummary(App.sessionToken, year);
+}
+
+function renderYearlySummary(s) {
+  var c = document.getElementById('yearly-content');
+  var catRows = Object.keys(s.expenseByCategory || {}).map(function(cat) {
+    return '<div class="summary-row"><span style="padding-left:16px;">' + esc(cat) + '</span><span>− ' + fmt(s.expenseByCategory[cat]) + '</span></div>';
+  }).join('');
+
+  c.innerHTML =
+    '<div class="card">' +
+    '<div class="summary-row"><span>Entrate (Einnahmen)</span><span style="color:#27ae60;font-weight:600;">' + fmt(s.revenueCents) + '</span></div>' +
+    '<div class="summary-row"><span>Spese (Ausgaben)</span><span style="color:#e74c3c;font-weight:600;">− ' + fmt(s.expenseCents) + '</span></div>' +
+    catRows +
+    '<div class="summary-row total"><span>Utile (Gewinn)</span><span style="color:' + (s.profitCents >= 0 ? '#27ae60' : '#e74c3c') + ';">' + fmt(s.profitCents) + '</span></div>' +
+    '</div>' +
+    '<div class="card">' +
+    '<div class="card-title">Transazioni private</div>' +
+    '<div class="summary-row"><span>Prelievi (Privatbezüge)</span><span>' + fmt(s.privateWithdrawalsCents) + '</span></div>' +
+    '<div class="summary-row"><span>Apporti (Privateinlagen)</span><span>' + fmt(s.privateContributionsCents) + '</span></div>' +
+    '</div>' +
+    '<div class="card">' +
+    '<div class="card-title">Crediti aperti</div>' +
+    '<div class="summary-row"><span>Non ancora incassato</span><span style="color:#e67e22;">' + fmt(s.openReceivablesCents) + '</span></div>' +
+    '</div>' +
+    '<p class="help-text" style="margin-top:8px;">Questo è un semplice Milchbüechli per Einzelfirma. Non sostituisce una consulenza fiduciaria.</p>';
+}
+
+function generateYearlyPdf() {
+  var year = document.getElementById('yearly-year-select').value;
+  var notes = document.getElementById('yearly-notes').value;
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      if (r.success) {
+        showToast('Report annuale generato!', 'success');
+        if (r.pdfUrl) window.open(r.pdfUrl, '_blank');
+      } else {
+        showToast(r.pdfError || 'Errore generazione PDF', 'error');
+      }
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_generateYearlyReport(App.sessionToken, parseInt(year), notes);
+}
+
+// =====================================================================
+// Settings
+// =====================================================================
+function openSettings() {
+  showPage('page-settings');
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(s) {
+      showSpinner(false);
+      var fields = ['businessName','ownerName','address','phone','email','website','vatMode','emailEnabled'];
+      fields.forEach(function(f) {
+        var el = document.getElementById('setting-' + f);
+        if (el) el.value = s[f] || '';
+      });
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_getSettings(App.sessionToken);
+}
+
+function saveSettings() {
+  var data = {};
+  var fields = ['businessName','ownerName','address','phone','email','website','vatMode','emailEnabled'];
+  fields.forEach(function(f) {
+    var el = document.getElementById('setting-' + f);
+    if (el) data[f] = el.value;
+  });
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      showToast('Impostazioni salvate!', 'success');
+      App.loadSettings();
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_saveSettings(App.sessionToken, data);
+}
+
+function changePin() {
+  var current = prompt('PIN attuale:');
+  if (!current) return;
+  var next = prompt('Nuovo PIN (min. 4 cifre):');
+  if (!next || next.length < 4) { showToast('PIN troppo corto.', 'error'); return; }
+  var confirm_ = prompt('Ripeti nuovo PIN:');
+  if (next !== confirm_) { showToast('I PIN non coincidono.', 'error'); return; }
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      showToast(r.success ? 'PIN cambiato!' : r.error, r.success ? 'success' : 'error');
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_changePin(App.sessionToken, current, next);
+}
+
+// =====================================================================
+// Services management
+// =====================================================================
+function openServicesPage() {
+  showPage('page-services');
+  loadServicesList();
+}
+
+function loadServicesList() {
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(rows) {
+      showSpinner(false);
+      renderServicesList(rows);
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_getAllServices(App.sessionToken);
+}
+
+function renderServicesList(rows) {
+  var c = document.getElementById('services-list-container');
+  c.innerHTML = (rows || []).map(function(s) {
+    return '<div class="list-item">' +
+      '<div class="list-item-left">' +
+      '<div class="list-item-title">' + esc(s.name) + (s.active !== 'true' ? ' <span class="badge badge-gray">Inattivo</span>' : '') + '</div>' +
+      '<div class="list-item-sub">CHF ' + (safeIntClient(s.defaultPriceCents)/100).toFixed(2) + '</div>' +
+      '</div>' +
+      '<button class="btn btn-gray btn-sm mb-0" onclick="toggleService(\'' + s.serviceId + '\',\'' + s.active + '\')">'+
+      (s.active === 'true' ? 'Disattiva' : 'Attiva') + '</button>' +
+      '</div>';
+  }).join('') || '<p class="text-muted">Nessun servizio.</p>';
+}
+
+function toggleService(serviceId, current) {
+  var newActive = current === 'true' ? 'false' : 'true';
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      loadServicesList();
+      App.loadServices();
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_saveService(App.sessionToken, { serviceId: serviceId, active: newActive === 'true' });
+}
+
+function addNewService() {
+  var name = prompt('Nome del servizio:');
+  if (!name) return;
+  var priceStr = prompt('Prezzo predefinito (CHF):');
+  var price = Math.round(parseFloat(priceStr) * 100) || 0;
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      showToast('Servizio aggiunto!', 'success');
+      loadServicesList();
+      App.loadServices();
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_saveService(App.sessionToken, { name: name, description: '', defaultPriceCents: price, active: true });
+}
+
+// =====================================================================
+// Private transactions
+// =====================================================================
+function openPrivateTx() {
+  showPage('page-private-tx');
+  document.getElementById('private-tx-date').value = todayISO();
+}
+
+function submitPrivateTx() {
+  var data = {
+    date: document.getElementById('private-tx-date').value,
+    type: document.getElementById('private-tx-type').value,
+    amountCents: Math.round(parseFloat(document.getElementById('private-tx-amount').value) * 100),
+    notes: document.getElementById('private-tx-notes').value.trim()
+  };
+  if (!data.amountCents) { showToast('Inserisci un importo.', 'error'); return; }
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      showToast('Transazione salvata!', 'success');
+      showPage('page-settings');
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_createPrivateTx(App.sessionToken, data);
+}
+
+// =====================================================================
+// Backup & Export
+// =====================================================================
+function openBackupPage() {
+  showPage('page-backup');
+  document.getElementById('backup-year-select').value = App.currentYear;
+}
+
+function doBackup() {
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      if (r.success) {
+        showToast('Backup creato: ' + r.name, 'success');
+        if (r.url) window.open(r.url, '_blank');
+      }
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_createBackup(App.sessionToken);
+}
+
+function doExportAll() {
+  var year = parseInt(document.getElementById('backup-year-select').value);
+  showSpinner(true);
+  google.script.run
+    .withSuccessHandler(function(r) {
+      showSpinner(false);
+      if (r.success) {
+        showToast('Export completato per ' + year + '!', 'success');
+        var files = r.files || {};
+        var links = Object.values(files).filter(function(f) { return f && f.url; })
+          .map(function(f) { return '<a href="' + f.url + '" target="_blank" style="display:block;margin:4px 0;color:#2980b9;">' + f.name + '</a>'; }).join('');
+        if (links) {
+          document.getElementById('export-links').innerHTML = '<div class="card mt-16">' + links + '</div>';
+        }
+      }
+    })
+    .withFailureHandler(function(e) { showSpinner(false); showToast(e.message, 'error'); })
+    .api_exportAll(App.sessionToken, year);
+}
+
+// =====================================================================
+// Helper utilities
+// =====================================================================
+function fmt(cents) {
+  var c = parseInt(cents) || 0;
+  return 'CHF ' + (c / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function formatDateStr(d) {
+  if (!d) return '';
+  var s = d.toString().substring(0, 10);
+  var parts = s.split('-');
+  if (parts.length === 3) return parts[2] + '.' + parts[1] + '.' + parts[0];
+  return s;
+}
+
+function todayISO() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function paymentBadge(status) {
+  if (status === 'Pagato') return '<span class="badge badge-green">Pagato</span>';
+  if (status === 'Aperto') return '<span class="badge badge-orange">Aperto</span>';
+  if (status === 'Pagato parzialmente') return '<span class="badge badge-blue">Parziale</span>';
+  return '<span class="badge badge-gray">' + esc(status) + '</span>';
+}
+
+function safeIntClient(v) { return parseInt(v) || 0; }
+
+// =====================================================================
+// Event wiring after DOM ready
+// =====================================================================
+document.addEventListener('DOMContentLoaded', function() {
+  App.init();
+
+  // Sale form listeners for total recalc
+  ['sale-discount','sale-tip'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateSaleTotal);
+  });
+
+  // Populate service selector when new-sale page is shown
+  var newSaleObs = new MutationObserver(function(muts) {
+    muts.forEach(function(m) {
+      if (m.target.id === 'page-new-sale' && m.target.classList.contains('active')) {
+        populateServiceSelector();
+      }
+    });
+  });
+  var ns = document.getElementById('page-new-sale');
+  if (ns) newSaleObs.observe(ns, { attributes: true, attributeFilter: ['class'] });
+
+  // Yearly page year select
+  var ysel = document.getElementById('yearly-year-select');
+  if (ysel) ysel.addEventListener('change', function() { loadYearlySummary(parseInt(this.value)); });
+});
+</script>
