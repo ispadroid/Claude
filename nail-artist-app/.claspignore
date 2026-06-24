@@ -1,3 +1,6 @@
 README.md
 deploy.sh
 .claspignore
+Installer.gs
+installer_appsscript.json
+generate_installer.py
