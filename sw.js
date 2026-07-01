@@ -1,5 +1,5 @@
 // sw.js — Service Worker for offline-first PWA
-const CACHE = 'maryjonails-v1';
+const CACHE = 'maryjonails-v2';
 const ASSETS = ['./'];
 
 self.addEventListener('install', e => {
