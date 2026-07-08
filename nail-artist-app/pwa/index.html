@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mary Jo Nails">
+<meta name="theme-color" content="#c0392b">
+<link rel="manifest" href="manifest.json">
+<title>Mary Jo Nails 💅</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--r:#c0392b;--rd:#922b21;--rl:#f9e5e4;--g:#27ae60;--o:#e67e22;--b:#2980b9;
+  --wa:#25d366;--pu:#7c3aed;--gl:#f4f4f5;--gy:#9ca3af;--gd:#4b5563;--tx:#1f2937;--wh:#fff;--rad:12px;
+  --sh:0 2px 12px rgba(0,0,0,.10);--ss:0 1px 4px rgba(0,0,0,.08)}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:#f0f0f2;color:var(--tx);min-height:100vh;overscroll-behavior:none}
+.shell{max-width:600px;margin:0 auto;min-height:100vh;background:#f0f0f2}
+.page{display:none;min-height:100vh}.page.active{display:block}
+/* topbar */
+.tb{background:var(--r);color:var(--wh);padding:14px 16px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tb-title{font-size:17px;font-weight:700}.tb-back{background:none;border:none;color:var(--wh);
+  font-size:22px;cursor:pointer;padding:4px 8px;margin-left:-8px;line-height:1}
+.tb-act{background:rgba(255,255,255,.2);border:none;color:var(--wh);font-size:13px;
+  padding:6px 12px;border-radius:20px;cursor:pointer}
+/* content */
+.cnt{padding:16px}
+/* cards */
+.card{background:var(--wh);border-radius:var(--rad);padding:16px;margin-bottom:12px;box-shadow:var(--ss)}
+.ct{font-size:13px;color:var(--gd);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.cv{font-size:28px;font-weight:700;color:var(--tx)}.cv.gn{color:var(--g)}.cv.rd{color:var(--r)}
+.cv.or{color:var(--o)}.cv.bl{color:var(--b)}.cs{font-size:13px;color:var(--gy);margin-top:2px}
+/* grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:14px 20px;
+  border-radius:var(--rad);font-size:16px;font-weight:600;border:none;cursor:pointer;
+  text-decoration:none;transition:opacity .15s,transform .1s;width:100%;margin-bottom:10px;
+  -webkit-tap-highlight-color:transparent}
+.btn:active{opacity:.8;transform:scale(.98)}.btn-p{background:var(--r);color:var(--wh)}
+.btn-s{background:var(--g);color:var(--wh)}.btn-o{background:transparent;color:var(--r);
+  border:2px solid var(--r)}.btn-gy{background:var(--gl);color:var(--gd)}
+.btn-bl{background:var(--b);color:var(--wh)}.btn-sm{padding:8px 14px;font-size:14px;margin-bottom:0}
+.btn-dn{background:#fee2e2;color:#dc2626}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-wa{background:var(--wa);color:var(--wh)}.btn-img{background:var(--pu);color:var(--wh)}
+/* quick actions */
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.qb{background:var(--wh);border:none;border-radius:var(--rad);padding:20px 12px;text-align:center;
+  cursor:pointer;box-shadow:var(--ss);transition:transform .1s,box-shadow .1s;-webkit-tap-highlight-color:transparent}
+.qb:active{transform:scale(.96);box-shadow:none}.qi{font-size:32px;display:block;margin-bottom:6px}
+.ql{font-size:14px;font-weight:600;color:var(--tx);display:block}.qb.ac{background:var(--r)}
+.qb.ac .ql{color:var(--wh)}.qb.gn{background:var(--g)}.qb.gn .ql{color:var(--wh)}
+/* forms */
+.fg{margin-bottom:16px}label{display:block;font-size:14px;font-weight:600;color:var(--gd);margin-bottom:6px}
+input,select,textarea{width:100%;padding:14px;border:1.5px solid #e5e7eb;border-radius:10px;
+  font-size:16px;color:var(--tx);background:var(--wh);appearance:none;-webkit-appearance:none;
+  transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--r)}
+textarea{min-height:80px;resize:vertical}.ir{display:flex;gap:8px}.ir>*{flex:1}
+/* PIN */
+.pd{display:flex;justify-content:center;gap:12px;margin:24px 0}
+.dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--r);background:transparent;transition:background .15s}
+.dot.f{background:var(--r)}
+.pp{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:280px;margin:0 auto}
+.pk{aspect-ratio:1;background:var(--wh);border:none;border-radius:50%;font-size:24px;font-weight:500;
+  cursor:pointer;box-shadow:var(--ss);display:flex;align-items:center;justify-content:center;transition:background .1s}
+.pk:active{background:var(--r);color:var(--wh)}
+/* section header */
+.sh{font-size:13px;font-weight:700;color:var(--gy);text-transform:uppercase;letter-spacing:.8px;padding:16px 0 8px}
+/* list items */
+.li{background:var(--wh);border-radius:var(--rad);padding:14px 16px;margin-bottom:8px;
+  display:flex;align-items:center;justify-content:space-between;box-shadow:var(--ss);
+  cursor:pointer;transition:transform .1s}
+.li:active{transform:scale(.99)}.ll{flex:1;min-width:0}.lt{font-size:15px;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ls{font-size:13px;color:var(--gy);margin-top:2px}
+.lr{text-align:right;margin-left:12px;flex-shrink:0}.la{font-size:16px;font-weight:700}
+/* badges */
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.3px}
+.bg{background:#dcfce7;color:#15803d}.bo{background:#fef3c7;color:#92400e}
+.br{background:#fee2e2;color:#dc2626}.bgy{background:var(--gl);color:var(--gd)}
+.bb{background:#dbeafe;color:#1e40af}
+/* warning */
+.warn{background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 14px;
+  border-radius:0 8px 8px 0;margin-bottom:12px;font-size:14px}
+.info{background:#dbeafe;border-left:4px solid #2980b9;padding:12px 14px;
+  border-radius:0 8px 8px 0;margin-bottom:12px;font-size:14px}
+/* modal */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;
+  align-items:flex-end;justify-content:center}.mo.active{display:flex}
+.modal{background:var(--wh);border-radius:20px 20px 0 0;width:100%;max-width:600px;
+  padding:24px 20px;max-height:92vh;overflow-y:auto;animation:su .25s ease}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px}
+/* toast */
+.tc{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:300;
+  width:calc(100% - 32px);max-width:360px}
+.toast{background:#1f2937;color:var(--wh);padding:14px 18px;border-radius:12px;font-size:14px;
+  margin-top:8px;animation:ti .25s ease;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.toast.ok{background:var(--g)}.toast.er{background:var(--r)}
+@keyframes ti{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* spinner */
+.so{display:none;position:fixed;inset:0;background:rgba(255,255,255,.7);z-index:400;
+  align-items:center;justify-content:center}.so.active{display:flex}
+.sp{width:48px;height:48px;border:4px solid #f3f3f3;border-top:4px solid var(--r);
+  border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* sale item */
+.sic{background:var(--gl);border-radius:10px;padding:12px;margin-bottom:10px}
+.sih{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+/* summary row */
+.sr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f3f3;font-size:15px}
+.sr.tot{font-weight:700;font-size:17px;border-bottom:none;border-top:2px solid var(--tx);padding-top:10px}
+/* bar chart */
+.bc{display:flex;align-items:flex-end;gap:4px;height:80px;margin-bottom:4px}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center}
+.bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;transition:height .3s}
+.bar.rv{background:var(--g)}.bar.ex{background:var(--r)}
+.bl2{font-size:9px;color:var(--gy);margin-top:2px}
+/* misc */
+.tc2{text-align:center}.tm{color:var(--gy);font-size:14px}.mt8{margin-top:8px}.mt16{margin-top:16px}
+.mb0{margin-bottom:0!important}.div{border:none;border-top:1px solid #f3f3f3;margin:16px 0}
+.es{text-align:center;padding:40px 20px;color:var(--gy)}.ei{font-size:48px;margin-bottom:12px}
+.chip{padding:6px 14px;border-radius:20px;font-size:13px;border:1.5px solid #e5e7eb;
+  background:var(--wh);cursor:pointer;transition:all .1s}
+.chip.sel{background:var(--r);color:var(--wh);border-color:var(--r)}
+.ht{font-size:12px;color:var(--gy);margin-top:4px}
+/* login */
+.ll2{text-align:center;padding:48px 20px 24px}
+.le{font-size:64px;display:block;margin-bottom:8px}
+.lt2{font-size:28px;font-weight:800;color:var(--r)}
+.ls2{font-size:15px;color:var(--gy);margin-top:4px}
+.lc{background:var(--wh);border-radius:20px 20px 0 0;padding:28px 24px;min-height:60vh}
+/* receipt image preview */
+.imgwrap{text-align:center;background:var(--gl);border-radius:12px;padding:12px;margin-bottom:16px}
+.imgwrap img{max-width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+/* segmented control */
+.seg{display:flex;background:var(--gl);border-radius:10px;padding:4px;gap:4px}
+.seg button{flex:1;padding:10px;border:none;background:transparent;border-radius:8px;font-size:14px;
+  font-weight:600;color:var(--gd);cursor:pointer}
+.seg button.sel{background:var(--wh);color:var(--r);box-shadow:var(--ss)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SPINNER -->
+<div id="so" class="so"><div class="sp"></div></div>
+<!-- TOASTS -->
+<div id="tc" class="tc"></div>
+
+<!-- WHATSAPP MODAL (fallback, only when no phone number) -->
+<div id="wa-modal" class="mo" onclick="if(event.target===this)closeWA()">
+  <div class="modal">
+    <div class="modal-title">💬 WhatsApp</div>
+    <div class="fg"><label>Numero (nessuno salvato)</label><input type="tel" id="wa-phone-in" placeholder="+41 79 000 00 00"></div>
+    <div class="fg"><label>Messaggio</label><textarea id="wa-text" rows="4" style="font-size:14px;"></textarea></div>
+    <button class="btn btn-wa" onclick="sendWAfromModal()">📱 Apri WhatsApp</button>
+    <button class="btn btn-gy" onclick="copyWA()">📋 Copia messaggio</button>
+    <p class="ht tc2">Allega l'immagine/PDF della ricevuta da WhatsApp.</p>
+    <button class="btn btn-gy" onclick="closeWA()">Chiudi</button>
+  </div>
+</div>
+
+<!-- RECEIPT IMAGE MODAL -->
+<div id="img-modal" class="mo" onclick="if(event.target===this)closeImg()">
+  <div class="modal">
+    <div class="modal-title">🖼️ Ricevuta immagine</div>
+    <div class="imgwrap"><img id="img-preview" alt="Ricevuta"></div>
+    <button class="btn btn-s" onclick="shareCurrentImage()">📤 Condividi / Salva immagine</button>
+    <button class="btn btn-wa" onclick="shareImageWA()">💬 Invia su WhatsApp</button>
+    <button class="btn btn-gy" onclick="downloadCurrentImage()">💾 Scarica PNG</button>
+    <button class="btn btn-gy" onclick="closeImg()">Chiudi</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: LOGIN ===== -->
+<div id="page-login" class="page">
+  <div class="ll2">
+    <span class="le">💅</span>
+    <div class="lt2" id="biz-name">Mary Jo Nails</div>
+    <div class="ls2">Contabilità offline</div>
+  </div>
+  <div class="lc">
+    <p class="tc2" style="color:#6b7280;margin-bottom:16px;">Inserisci il tuo PIN</p>
+    <div class="pd">
+      <div class="dot" id="d0"></div><div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div><div class="dot" id="d3"></div>
+      <div class="dot" id="d4"></div><div class="dot" id="d5"></div>
+    </div>
+    <div class="pp">
+      <button class="pk" onclick="pk('1')">1</button><button class="pk" onclick="pk('2')">2</button>
+      <button class="pk" onclick="pk('3')">3</button><button class="pk" onclick="pk('4')">4</button>
+      <button class="pk" onclick="pk('5')">5</button><button class="pk" onclick="pk('6')">6</button>
+      <button class="pk" onclick="pk('7')">7</button><button class="pk" onclick="pk('8')">8</button>
+      <button class="pk" onclick="pk('9')">9</button>
+      <button class="pk" onclick="pk('⌫')">⌫</button>
+      <button class="pk" onclick="pk('0')">0</button>
+      <button class="pk" onclick="pk('OK')" style="background:var(--r);color:#fff;font-size:14px;font-weight:700;">OK</button>
+    </div>
+    <p class="ht tc2" style="margin-top:20px;">PIN predefinito: <strong>1234</strong> — cambialo in Impostazioni.</p>
+  </div>
+</div>
+
+<!-- ===== PAGE: DASHBOARD ===== -->
+<div id="page-dashboard" class="page">
+  <div class="tb">
+    <span class="tb-title">💅 <span class="bn">Mary Jo Nails</span></span>
+    <button class="tb-act" onclick="doLogout()">Esci</button>
+  </div>
+  <div class="cnt">
+    <div class="qa">
+      <button class="qb ac" onclick="nav('page-new-sale')"><span class="qi">💰</span><span class="ql">Nuovo incasso</span></button>
+      <button class="qb gn" onclick="nav('page-new-expense')"><span class="qi">🧾</span><span class="ql">Nuova spesa</span></button>
+      <button class="qb" onclick="nav('page-sales-list',loadSalesList)"><span class="qi">📋</span><span class="ql">Ricevute</span></button>
+      <button class="qb" onclick="nav('page-expenses-list',loadExpensesList)"><span class="qi">💸</span><span class="ql">Spese</span></button>
+      <button class="qb" onclick="nav('page-open-pay',loadOpenPay)"><span class="qi">⏳</span><span class="ql">Da incassare</span></button>
+      <button class="qb" onclick="nav('page-yearly',loadYearly)"><span class="qi">📊</span><span class="ql">Jahresabschluss</span></button>
+      <button class="qb" onclick="nav('page-cloud',loadCloudPage)"><span class="qi">☁️</span><span class="ql">Cloud backup</span></button>
+      <button class="qb" onclick="nav('page-settings',loadSettings)"><span class="qi">⚙️</span><span class="ql">Impostazioni</span></button>
+    </div>
+    <div id="dash-content"></div>
+  </div>
+</div>
+
+<!-- ===== PAGE: NEW SALE ===== -->
+<div id="page-new-sale" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-dashboard')">←</button><span class="tb-title">💰 Nuovo incasso</span><span></span></div>
+  <div class="cnt">
+    <div class="fg"><label>Data</label><input type="date" id="s-date"></div>
+    <div class="sh">Cliente (opzionale)</div>
+    <div class="fg"><label>Nome</label><input type="text" id="s-cname" placeholder="Es: Maria Rossi" autocomplete="off" list="cust-list"><datalist id="cust-list"></datalist></div>
+    <div class="fg"><label>Telefono</label><input type="tel" id="s-cphone" placeholder="+41 79 000 00 00"></div>
+    <div class="fg"><label>Email</label><input type="email" id="s-cemail" placeholder="email@esempio.ch"></div>
+    <div class="sh">Servizi</div>
+    <div id="s-items"></div>
+    <div class="fg">
+      <label>Aggiungi servizio</label>
+      <select id="s-svc-sel" onchange="addSvcFromSel()"><option value="">+ Seleziona servizio...</option></select>
+    </div>
+    <button class="btn btn-gy btn-sm mb0" onclick="addCustomItem()" style="margin-bottom:16px;">+ Servizio personalizzato</button>
+    <div class="sh">Totali</div>
+    <div class="fg"><label>Sconto (CHF)</label><input type="number" id="s-disc" value="0" step="0.05" min="0" oninput="calcTotal()"></div>
+    <div class="fg"><label>Mancia (CHF)</label><input type="number" id="s-tip" value="0" step="0.05" min="0" oninput="calcTotal()"></div>
+    <div class="card tc2" style="margin-bottom:16px;">
+      <div class="ct">TOTALE</div><div class="cv gn" id="s-total">CHF 0.00</div>
+    </div>
+    <div class="sh">Pagamento</div>
+    <div class="fg"><label>Metodo</label>
+      <select id="s-pm"><option value="">Seleziona...</option>
+        <option>💵 Contanti</option><option>📱 TWINT</option><option>💳 Carta</option>
+        <option>🏦 Bonifico</option><option>Altro</option></select></div>
+    <div class="fg"><label>Stato</label>
+      <select id="s-ps">
+        <option value="Pagato">✅ Pagato</option>
+        <option value="Aperto">⏳ Aperto</option>
+        <option value="Pagato parzialmente">🔶 Parziale</option></select></div>
+    <div class="fg"><label>Note</label><textarea id="s-notes" placeholder="Note..."></textarea></div>
+    <button class="btn btn-p" onclick="submitSale()">💾 Salva e genera ricevuta</button>
+    <button class="btn btn-gy" onclick="nav('page-dashboard')">Annulla</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: SALE RESULT ===== -->
+<div id="page-sale-result" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-dashboard',loadDash)">←</button><span class="tb-title">✅ Ricevuta creata</span><span></span></div>
+  <div class="cnt">
+    <div class="card tc2" style="padding:24px;">
+      <div style="font-size:48px;">🎉</div>
+      <div class="ct mt8">Ricevuta</div>
+      <div style="font-size:24px;font-weight:800;" id="r-num">—</div>
+      <div class="cv gn mt8" id="r-tot">CHF 0.00</div>
+      <div class="cs" id="r-cust"></div>
+    </div>
+    <div class="sh">Invia al cliente</div>
+    <button class="btn btn-wa" id="r-wa-btn" onclick="openWhatsApp()">💬 Invia su WhatsApp</button>
+    <button class="btn btn-img" onclick="showReceiptImage()">🖼️ Ricevuta come immagine</button>
+    <div class="sh">Altre azioni</div>
+    <button class="btn btn-bl" onclick="openReceipt()">📄 Apri ricevuta (PDF)</button>
+    <button class="btn btn-gy" onclick="emailReceipt()">✉️ Invia email</button>
+    <button class="btn btn-gy" onclick="resetSale();nav('page-new-sale')">+ Nuovo incasso</button>
+    <button class="btn btn-gy" onclick="nav('page-dashboard',loadDash)">← Dashboard</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: SALES LIST ===== -->
+<div id="page-sales-list" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-dashboard')">←</button><span class="tb-title">📋 Ricevute</span><span></span></div>
+  <div class="cnt">
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <select id="sl-year" onchange="loadSalesList()" style="flex:1;"></select>
+      <select id="sl-month" onchange="loadSalesList()" style="flex:1;"></select>
+    </div>
+    <div id="sl-content"></div>
+  </div>
+</div>
+
+<!-- ===== PAGE: SALE DETAIL ===== -->
+<div id="page-sale-detail" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-sales-list',loadSalesList)">←</button><span class="tb-title">📋 Dettaglio</span><span></span></div>
+  <div class="cnt"><div id="sd-content"></div></div>
+</div>
+
+<!-- ===== PAGE: NEW EXPENSE ===== -->
+<div id="page-new-expense" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-dashboard')">←</button><span class="tb-title">🧾 Nuova spesa</span><span></span></div>
+  <div class="cnt">
+    <div class="fg"><label>Data</label><input type="date" id="e-date"></div>
+    <div class="fg"><label>Fornitore</label><input type="text" id="e-vendor" placeholder="Es: Douglas, Amazon..."></div>
+    <div class="fg"><label>Categoria</label>
+      <select id="e-cat">
+        <option value="">Seleziona...</option>
+        <option>Prodotti unghie / materiale</option><option>Attrezzi e apparecchi</option>
+        <option>Affitto / studio</option><option>Marketing / social media / sito web</option>
+        <option>Telefono / internet</option><option>Corsi / formazione</option>
+        <option>Assicurazioni</option><option>Commissioni banca / TWINT / carta</option>
+        <option>Trasporti</option><option>Materiale ufficio</option><option>Altro</option>
+      </select></div>
+    <div class="fg"><label>Importo (CHF)</label><input type="number" id="e-amt" step="0.05" min="0" placeholder="0.00" oninput="calcDed()"></div>
+    <div class="fg"><label>Quota aziendale (%)</label>
+      <input type="number" id="e-pct" value="100" min="0" max="100" oninput="calcDed()">
+      <p class="ht">Importo deducibile: <strong id="e-ded">CHF 0.00</strong></p></div>
+    <div class="fg"><label>Metodo di pagamento</label>
+      <select id="e-pm"><option>Contanti</option><option>Carta</option><option>TWINT</option><option>Bonifico</option><option>Altro</option></select></div>
+    <div class="fg"><label>Allegato (foto scontrino)</label>
+      <input type="file" id="e-file" accept="image/*,application/pdf" style="padding:10px;font-size:14px;">
+      <p class="ht" id="e-fname">Nessun file selezionato</p></div>
+    <div class="fg"><label>Note</label><textarea id="e-notes" placeholder="Note..."></textarea></div>
+    <button class="btn btn-p" onclick="submitExpense()">💾 Salva spesa</button>
+    <button class="btn btn-gy" onclick="nav('page-dashboard')">Annulla</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: EXPENSES LIST ===== -->
+<div id="page-expenses-list" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-dashboard')">←</button><span class="tb-title">💸 Spese</span><span></span></div>
+  <div class="cnt">
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <select id="el-year" onchange="loadExpensesList()" style="flex:1;"></select>
+    </div>
+    <div id="el-content"></div>
+  </div>
+</div>
+
+<!-- ===== PAGE: OPEN PAYMENTS ===== -->
+<div id="page-open-pay" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-dashboard')">←</button><span class="tb-title">⏳ Da incassare</span><span></span></div>
+  <div class="cnt"><div id="op-content"></div></div>
+</div>
+
+<!-- ===== PAGE: YEARLY ===== -->
+<div id="page-yearly" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-dashboard')">←</button><span class="tb-title">📊 Jahresabschluss</span><span></span></div>
+  <div class="cnt">
+    <div class="fg"><label>Geschäftsjahr / Anno</label><select id="y-year" onchange="loadYearly()"></select></div>
+    <div id="y-content"></div>
+    <div class="fg mt16"><label>Bemerkungen / Note</label><textarea id="y-notes" placeholder="Bemerkungen für das Steueramt..."></textarea></div>
+    <button class="btn btn-p" onclick="exportYearlyPdf()">📄 Jahresabschluss als PDF (Steueramt)</button>
+    <button class="btn btn-o" onclick="nav('page-priv-tx')">+ Privattransaktion</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: PRIVATE TX ===== -->
+<div id="page-priv-tx" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-yearly',loadYearly)">←</button><span class="tb-title">🔄 Privattransaktion</span><span></span></div>
+  <div class="cnt">
+    <div class="fg"><label>Data</label><input type="date" id="pt-date"></div>
+    <div class="fg"><label>Tipo</label>
+      <select id="pt-type">
+        <option value="withdrawal">Prelievo privato (Privatbezug)</option>
+        <option value="contribution">Apporto privato (Privateinlage)</option>
+      </select></div>
+    <div class="fg"><label>Importo (CHF)</label><input type="number" id="pt-amt" step="0.05" min="0" placeholder="0.00"></div>
+    <div class="fg"><label>Note</label><textarea id="pt-notes" placeholder="Descrizione..."></textarea></div>
+    <button class="btn btn-p" onclick="submitPrivTx()">💾 Salva</button>
+    <button class="btn btn-gy" onclick="nav('page-yearly',loadYearly)">Annulla</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: SETTINGS ===== -->
+<div id="page-settings" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-dashboard')">←</button><span class="tb-title">⚙️ Impostazioni</span><span></span></div>
+  <div class="cnt">
+    <div class="sh">Dati aziendali</div>
+    <div class="fg"><label>Nome attività</label><input type="text" id="cfg-biz" placeholder="Mary Jo Nails"></div>
+    <div class="fg"><label>Nome titolare</label><input type="text" id="cfg-own" placeholder="Maria Rossi"></div>
+    <div class="fg"><label>Indirizzo</label><textarea id="cfg-addr" placeholder="Bahnhofstrasse 1&#10;8001 Zürich"></textarea></div>
+    <div class="fg"><label>Telefono</label><input type="tel" id="cfg-ph" placeholder="+41 79 000 00 00"></div>
+    <div class="fg"><label>Email</label><input type="email" id="cfg-em" placeholder="info@maryjonails.ch"></div>
+    <div class="fg"><label>Sito / Instagram</label><input type="text" id="cfg-web" placeholder="@maryjonails"></div>
+    <div class="fg"><label>N. IVA / MWST-Nr. (opzionale)</label><input type="text" id="cfg-uid" placeholder="CHE-123.456.789 MWST"></div>
+    <div class="sh">Lingua ricevute</div>
+    <div class="fg">
+      <label>Le ricevute per i clienti saranno in:</label>
+      <div class="seg" id="lang-seg">
+        <button data-l="both" onclick="setLangSeg('both')">🇮🇹🇩🇪 Entrambe</button>
+        <button data-l="it" onclick="setLangSeg('it')">🇮🇹 Italiano</button>
+        <button data-l="de" onclick="setLangSeg('de')">🇩🇪 Deutsch</button>
+      </div>
+      <p class="ht">Il Jahresabschluss per il fisco è sempre in tedesco.</p>
+    </div>
+    <div class="sh">IVA / MWST</div>
+    <div class="fg"><label>Modalità IVA</label>
+      <select id="cfg-vat">
+        <option value="not_registered">Non soggetta a IVA/MWST</option>
+        <option value="registered">Soggetta a IVA/MWST</option>
+      </select>
+      <p class="ht">Soglia registrazione MWST in Svizzera: CHF 100'000/anno</p></div>
+    <button class="btn btn-p" onclick="saveSettings()">💾 Salva impostazioni</button>
+    <div class="sh">Sicurezza</div>
+    <button class="btn btn-o" onclick="changePin()">🔐 Cambia PIN</button>
+    <div class="sh">Servizi</div>
+    <button class="btn btn-gy" onclick="nav('page-services',loadServicesList)">✂️ Gestisci servizi</button>
+    <div class="sh">Dati</div>
+    <button class="btn btn-gy" onclick="nav('page-cloud',loadCloudPage)">☁️ Cloud backup</button>
+    <button class="btn btn-gy" onclick="nav('page-backup')">💾 Backup / Export file</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: SERVICES ===== -->
+<div id="page-services" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-settings',loadSettings)">←</button><span class="tb-title">✂️ Servizi</span><span></span></div>
+  <div class="cnt">
+    <button class="btn btn-s" onclick="addService()" style="margin-bottom:16px;">+ Aggiungi servizio</button>
+    <div id="svc-list"></div>
+  </div>
+</div>
+
+<!-- ===== PAGE: CLOUD ===== -->
+<div id="page-cloud" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-dashboard')">←</button><span class="tb-title">☁️ Cloud backup</span><span></span></div>
+  <div class="cnt">
+    <div class="info">🔒 I tuoi dati vengono <strong>criptati sul tuo iPhone</strong> (AES-256) prima di essere caricati. Senza il tuo codice segreto nessuno può leggerli — nemmeno noi.</div>
+    <div id="cloud-status"></div>
+    <div class="sh">Salva nel cloud</div>
+    <div class="card">
+      <div class="fg mb0"><label>Codice segreto (min. 6 caratteri)</label>
+        <input type="password" id="cloud-pin" placeholder="Es: mariajo2024" autocomplete="new-password">
+        <p class="ht">Serve per criptare. Ricordalo bene: senza, i dati non si recuperano.</p></div>
+      <button class="btn btn-p mt16 mb0" onclick="doCloudUpload()">☁️⬆️ Carica nel cloud</button>
+    </div>
+    <div class="sh">Ripristina da cloud</div>
+    <div class="card">
+      <div class="fg"><label>Codice backup (dal cloud)</label>
+        <input type="text" id="restore-cloud-code" placeholder="Es: 1a2b3c4d..."></div>
+      <div class="fg mb0"><label>Codice segreto</label>
+        <input type="password" id="restore-cloud-pin" placeholder="Il tuo codice segreto" autocomplete="off"></div>
+      <button class="btn btn-bl mt16 mb0" onclick="doCloudDownload()">☁️⬇️ Ripristina</button>
+    </div>
+    <p class="ht tc2 mt16">Backup gratuito e anonimo. Per sicurezza extra fai anche un backup file (Impostazioni → Backup).</p>
+  </div>
+</div>
+
+<!-- ===== PAGE: BACKUP ===== -->
+<div id="page-backup" class="page">
+  <div class="tb"><button class="tb-back" onclick="nav('page-settings',loadSettings)">←</button><span class="tb-title">💾 Backup &amp; Export</span><span></span></div>
+  <div class="cnt">
+    <div class="fg"><label>Anno per export CSV</label><select id="bk-year"></select></div>
+    <div class="sh">Backup completo</div>
+    <div class="card">
+      <p class="tm" style="margin-bottom:12px;">Scarica tutti i dati come file JSON sul tuo iPhone.</p>
+      <button class="btn btn-p mb0" onclick="doBackup()">💾 Scarica backup JSON</button>
+    </div>
+    <div class="sh">Ripristino</div>
+    <div class="card">
+      <p class="tm" style="margin-bottom:12px;">Ripristina da un file di backup precedente.</p>
+      <input type="file" id="restore-file" accept=".json" style="font-size:14px;padding:8px;" onchange="doRestore(this)">
+    </div>
+    <div class="sh">Export CSV</div>
+    <div class="card">
+      <button class="btn btn-bl mb0" onclick="exportCSV()">📊 Scarica CSV (anno selezionato)</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- .shell -->
+<script>
+// =====================================================================
+// Translations (receipts bilingual IT/DE)
+// =====================================================================
+const T = {
+  receipt:{it:'RICEVUTA',de:'QUITTUNG'},
+  date:{it:'Data',de:'Datum'},
+  num:{it:'N°',de:'Nr.'},
+  customer:{it:'Cliente',de:'Kundin'},
+  description:{it:'Descrizione',de:'Beschreibung'},
+  qty:{it:'Qtà',de:'Menge'},
+  price:{it:'Prezzo',de:'Preis'},
+  amount:{it:'Importo',de:'Betrag'},
+  subtotal:{it:'Subtotale',de:'Zwischensumme'},
+  discount:{it:'Sconto',de:'Rabatt'},
+  tip:{it:'Mancia',de:'Trinkgeld'},
+  total:{it:'TOTALE',de:'GESAMT'},
+  payment:{it:'Pagamento',de:'Zahlung'},
+  status:{it:'Stato',de:'Status'},
+  thanks:{it:'Grazie per la tua visita! 💅',de:'Danke für Ihren Besuch! 💅'},
+  noVat:{it:'IVA non applicata (art. 10 LIVA)',de:'Nicht MWST-pflichtig'},
+  paid:{it:'Pagato',de:'Bezahlt'},
+  open:{it:'Aperto',de:'Offen'},
+  partial:{it:'Parziale',de:'Teilbezahlt'}
+};
+function tl(key, lang) {
+  const e = T[key]; if (!e) return key;
+  if (lang === 'both') return e.it + (e.de && e.de !== e.it ? ' / ' + e.de : '');
+  return e[lang] || e.it;
+}
+function payLabel(status, lang) {
+  const map = { 'Pagato':'paid', 'Aperto':'open', 'Pagato parzialmente':'partial' };
+  const k = map[status]; return k ? tl(k, lang) : status;
+}
+
+// =====================================================================
+// IndexedDB wrapper
+// =====================================================================
+const DB_NAME = 'MaryJoNails', DB_VER = 1;
+let _db = null;
+function openDB() {
+  if (_db) return Promise.resolve(_db);
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      ['settings','services','customers','sales','saleItems','expenses','privateTx'].forEach(s => {
+        if (!db.objectStoreNames.contains(s)) db.createObjectStore(s, { keyPath: 'id' });
+      });
+    };
+    req.onsuccess = e => { _db = e.target.result; res(_db); };
+    req.onerror = e => rej(e.target.error);
+  });
+}
+async function dbGet(store, id) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(id);
+    req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error);
+  });
+}
+async function dbPut(store, obj) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(obj);
+    req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error);
+  });
+}
+async function dbGetAll(store) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error);
+  });
+}
+async function dbDelete(store, id) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).delete(id);
+    req.onsuccess = () => res(); req.onerror = () => rej(req.error);
+  });
+}
+async function dbClear(store) {
+  const db = await openDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).clear();
+    req.onsuccess = () => res(); req.onerror = () => rej(req.error);
+  });
+}
+
+// =====================================================================
+// Settings helpers
+// =====================================================================
+async function getSetting(key) { const r = await dbGet('settings', key); return r ? r.value : null; }
+async function setSetting(key, value) { await dbPut('settings', { id: key, value }); }
+async function getAllSettings() {
+  const rows = await dbGetAll('settings'); const obj = {};
+  rows.forEach(r => { obj[r.id] = r.value; }); return obj;
+}
+
+// =====================================================================
+// Utils
+// =====================================================================
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function fmt(cents) {
+  const c = parseInt(cents) || 0;
+  return 'CHF ' + (c / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+}
+function fmtPlain(cents) { return ((parseInt(cents) || 0) / 100).toFixed(2); }
+function fmtSwiss(cents) { return ((parseInt(cents)||0)/100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, "'"); }
+function parseCents(v) { return Math.round(parseFloat(String(v).replace(',', '.')) * 100) || 0; }
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function fmtDate(s) {
+  if (!s) return '';
+  const p = String(s).substring(0, 10).split('-');
+  return p.length === 3 ? p[2]+'.'+p[1]+'.'+p[0] : s;
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function monthLabel(m) { return ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'][m-1]||m; }
+function payBadge(s) {
+  if (s==='Pagato') return '<span class="badge bg">Pagato</span>';
+  if (s==='Aperto') return '<span class="badge bo">Aperto</span>';
+  if (s==='Pagato parzialmente') return '<span class="badge bb">Parziale</span>';
+  return '<span class="badge bgy">'+esc(s)+'</span>';
+}
+function sumCents(rows, field) { return rows.reduce((s, r) => s + (parseInt(r[field]) || 0), 0); }
+function curYear() { return new Date().getFullYear(); }
+function curMonth() { return new Date().getMonth() + 1; }
+
+// =====================================================================
+// App state
+// =====================================================================
+const App = { pin: null, loggedIn: false, services: [], settings: {}, lastSaleData: null };
+
+// =====================================================================
+// Init & Auth
+// =====================================================================
+async function appInit() {
+  spin(true);
+  try {
+    await openDB();
+    const storedHash = await getSetting('pinHash');
+    if (!storedHash) {
+      const h = await sha256('1234');
+      await setSetting('pinHash', h);
+      await seedDefaults();
+    }
+    const biz = await getSetting('businessName') || 'Mary Jo Nails';
+    document.getElementById('biz-name').textContent = biz;
+    document.querySelectorAll('.bn').forEach(el => el.textContent = biz);
+    const sess = sessionStorage.getItem('sess');
+    if (sess && sess === (await getSetting('sessToken'))) {
+      App.loggedIn = true; await loadAppData();
+      nav('page-dashboard', loadDash);
+    } else { nav('page-login'); }
+  } catch(e) { showToast('Errore avvio: ' + e.message, 'er'); nav('page-login'); }
+  spin(false);
+}
+async function seedDefaults() {
+  const now = new Date().toISOString();
+  const defSvcs = [
+    { name: 'Semipermanente mani', price: 4500 },{ name: 'Refill gel', price: 5500 },
+    { name: 'Ricostruzione gel', price: 7000 },{ name: 'Nail art', price: 1500 },
+    { name: 'Pedicure', price: 5000 },{ name: 'Rimozione', price: 2000 },
+    { name: 'Riparazione unghia', price: 800 }
+  ];
+  for (const s of defSvcs)
+    await dbPut('services', { id: uuid(), name: s.name, description: '', priceCents: s.price, active: true, createdAt: now });
+  await setSetting('businessName', 'Mary Jo Nails');
+  await setSetting('vatMode', 'not_registered');
+  await setSetting('receiptLang', 'both');
+}
+async function loadAppData() {
+  App.services = (await dbGetAll('services')).filter(s => s.active);
+  App.settings = await getAllSettings();
+}
+
+let pinBuf = '';
+function pk(v) {
+  if (v === '⌫') { pinBuf = pinBuf.slice(0, -1); }
+  else if (v === 'OK') { doLogin(); return; }
+  else { if (pinBuf.length >= 6) return; pinBuf += v; }
+  updateDots();
+  if (pinBuf.length >= 4) setTimeout(() => { if (pinBuf.length >= 4) doLogin(); }, 300);
+}
+function updateDots() {
+  for (let i = 0; i < 6; i++) { const d = document.getElementById('d'+i); if (d) d.classList.toggle('f', i < pinBuf.length); }
+}
+async function doLogin() {
+  const pin = pinBuf; pinBuf = ''; updateDots();
+  if (!pin) return;
+  spin(true);
+  try {
+    const entered = await sha256(pin);
+    const stored = await getSetting('pinHash');
+    if (entered === stored) {
+      const token = uuid();
+      await setSetting('sessToken', token);
+      sessionStorage.setItem('sess', token);
+      App.loggedIn = true; await loadAppData(); spin(false);
+      nav('page-dashboard', loadDash); showToast('Bentornata! 💅', 'ok');
+    } else { spin(false); showToast('PIN errato. Riprova.', 'er'); }
+  } catch(e) { spin(false); showToast('Errore: ' + e.message, 'er'); }
+}
+function doLogout() {
+  App.loggedIn = false; sessionStorage.removeItem('sess');
+  nav('page-login'); showToast('Logout effettuato.', '');
+}
+
+// =====================================================================
+// Navigation
+// =====================================================================
+function nav(pageId, callback) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById(pageId);
+  if (el) { el.classList.add('active'); window.scrollTo(0, 0); }
+  if (callback) callback();
+}
+
+// =====================================================================
+// Dashboard
+// =====================================================================
+async function loadDash() {
+  const el = document.getElementById('dash-content');
+  el.innerHTML = '<div class="es"><div class="sp" style="margin:0 auto;"></div></div>';
+  try {
+    const yr = curYear(), mo = curMonth();
+    const allSales = (await dbGetAll('sales')).filter(s => s.status !== 'cancelled');
+    const allExp = (await dbGetAll('expenses')).filter(e => e.status !== 'cancelled');
+    const yp = yr.toString(), mp = yr+'-'+String(mo).padStart(2,'0');
+    const ySales = allSales.filter(s => s.date && s.date.startsWith(yp));
+    const mSales = allSales.filter(s => s.date && s.date.startsWith(mp));
+    const yExp = allExp.filter(e => e.date && e.date.startsWith(yp));
+    const mExp = allExp.filter(e => e.date && e.date.startsWith(mp));
+    const yRev = sumCents(ySales, 'totalCents'), mRev = sumCents(mSales, 'totalCents');
+    const yEx = sumCents(yExp, 'dedCents'), mEx = sumCents(mExp, 'dedCents');
+    const openPay = allSales.filter(s => s.payStatus === 'Aperto' || s.payStatus === 'Pagato parzialmente');
+    let warns = '';
+    if (yRev >= 10000000) warns += '<div class="warn">⚠️ Fatturato annuo supera CHF 100\'000! Verifica obbligo MWST.</div>';
+    else if (yRev >= 8000000) warns += '<div class="warn">📢 Fatturato si avvicina a CHF 100\'000 (soglia MWST). Consulta un fiduciario.</div>';
+    const monthlyData = [];
+    for (let m = 1; m <= 12; m++) {
+      const pfx = yr+'-'+String(m).padStart(2,'0');
+      monthlyData.push({ m,
+        rev: sumCents(allSales.filter(s => s.date && s.date.startsWith(pfx)), 'totalCents'),
+        exp: sumCents(allExp.filter(e => e.date && e.date.startsWith(pfx)), 'dedCents') });
+    }
+    const maxVal = Math.max(...monthlyData.map(d => Math.max(d.rev, d.exp))) || 1;
+    const chartCols = monthlyData.map(d => {
+      const rH = Math.max(4, Math.round(d.rev/maxVal*72)), eH = Math.max(4, Math.round(d.exp/maxVal*72));
+      return `<div class="bcol"><div style="display:flex;align-items:flex-end;gap:1px;"><div class="bar rv" style="height:${rH}px;"></div><div class="bar ex" style="height:${eH}px;"></div></div><div class="bl2">${monthLabel(d.m)}</div></div>`;
+    }).join('');
+    const pmSplit = {};
+    ySales.forEach(s => { pmSplit[s.payMethod||'Altro'] = (pmSplit[s.payMethod||'Altro']||0) + (parseInt(s.totalCents)||0); });
+    const pmHtml = Object.keys(pmSplit).length
+      ? Object.keys(pmSplit).map(k => `<div class="sr"><span>${esc(k)}</span><span>${fmt(pmSplit[k])}</span></div>`).join('')
+      : '<p class="tm">Nessun dato.</p>';
+    const svcRev = {};
+    const allItems = await dbGetAll('saleItems');
+    const ySaleIds = new Set(ySales.map(s => s.id));
+    allItems.filter(i => ySaleIds.has(i.saleId)).forEach(i => {
+      svcRev[i.desc||'Servizio'] = (svcRev[i.desc||'Servizio']||0) + (parseInt(i.totalCents)||0);
+    });
+    const topSvc = Object.keys(svcRev).sort((a,b) => svcRev[b]-svcRev[a]).slice(0,5)
+      .map(k => `<div class="sr"><span>${esc(k)}</span><span>${fmt(svcRev[k])}</span></div>`).join('') || '<p class="tm">Nessun dato.</p>';
+    el.innerHTML = warns +
+      `<div class="g2">
+        <div class="card"><div class="ct">Incasso mese</div><div class="cv gn">${fmt(mRev)}</div></div>
+        <div class="card"><div class="ct">Spese mese</div><div class="cv rd">${fmt(mEx)}</div></div>
+      </div><div class="g2">
+        <div class="card"><div class="ct">Utile mese</div><div class="cv ${mRev-mEx>=0?'gn':'rd'}">${fmt(mRev-mEx)}</div></div>
+        <div class="card"><div class="ct">Da incassare</div><div class="cv or">${fmt(sumCents(openPay,'totalCents'))}</div><div class="cs">${openPay.length} aperti</div></div>
+      </div>
+      <div class="sh">Anno ${yr}</div>
+      <div class="g2">
+        <div class="card"><div class="ct">Fatturato</div><div class="cv bl">${fmt(yRev)}</div><div class="cs">${ySales.length} ricevute</div></div>
+        <div class="card"><div class="ct">Spese</div><div class="cv rd">${fmt(yEx)}</div></div>
+      </div>
+      <div class="card"><div class="ct">Utile annuo</div><div class="cv ${yRev-yEx>=0?'gn':'rd'}">${fmt(yRev-yEx)}</div></div>
+      <div class="sh">Andamento ${yr}</div>
+      <div class="card"><div class="bc">${chartCols}</div><div style="display:flex;gap:12px;font-size:11px;color:#9ca3af;margin-top:4px;"><span>🟢 Entrate</span><span>🔴 Spese</span></div></div>
+      <div class="sh">Metodi di pagamento</div>
+      <div class="card">${pmHtml}</div>
+      <div class="sh">Top servizi</div>
+      <div class="card">${topSvc}</div>`;
+  } catch(e) { el.innerHTML = '<p class="tm">Errore dashboard: '+esc(e.message)+'</p>'; }
+}
+
+// =====================================================================
+// Services selector + customer autofill
+// =====================================================================
+function populateSvcSel() {
+  const sel = document.getElementById('s-svc-sel');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">+ Seleziona servizio...</option>';
+  App.services.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.id;
+    o.textContent = s.name + (s.priceCents ? ' (CHF ' + (s.priceCents/100).toFixed(2) + ')' : '');
+    o.dataset.price = s.priceCents || 0; o.dataset.name = s.name;
+    sel.appendChild(o);
+  });
+}
+async function populateCustList() {
+  const dl = document.getElementById('cust-list');
+  if (!dl) return;
+  const sales = await dbGetAll('sales');
+  const seen = {};
+  sales.forEach(s => { if (s.customerName) seen[s.customerName] = { phone: s.customerPhone||'', email: s.customerEmail||'' }; });
+  dl.innerHTML = Object.keys(seen).map(n => `<option value="${esc(n)}">`).join('');
+  App._custMap = seen;
+}
+
+// =====================================================================
+// New Sale
+// =====================================================================
+let saleItems = [];
+let lastSaleId = null;
+function resetSale() {
+  saleItems = [];
+  ['s-date','s-cname','s-cphone','s-cemail','s-disc','s-tip','s-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = id === 's-date' ? todayISO() : (id === 's-disc' || id === 's-tip' ? '0' : '');
+  });
+  document.getElementById('s-pm').selectedIndex = 0;
+  document.getElementById('s-ps').selectedIndex = 0;
+  renderItems(); populateSvcSel(); populateCustList();
+}
+function renderItems() {
+  const c = document.getElementById('s-items');
+  if (!saleItems.length) { c.innerHTML = '<p class="tm tc2" style="padding:12px;">Nessun servizio aggiunto.</p>'; calcTotal(); return; }
+  c.innerHTML = saleItems.map((item, i) => `
+    <div class="sic">
+      <div class="sih"><span style="font-weight:600;">${esc(item.desc)}</span>
+        <button class="btn btn-dn btn-sm mb0" onclick="removeItem(${i})">✕</button></div>
+      <div class="ir">
+        <div><label style="font-size:12px;">Qtà</label>
+          <input type="number" min="1" value="${item.qty}" onchange="updateItem(${i},'qty',this.value)" style="padding:8px;"></div>
+        <div><label style="font-size:12px;">Prezzo CHF</label>
+          <input type="number" step="0.05" value="${(item.unitCents/100).toFixed(2)}" onchange="updateItem(${i},'price',this.value)" style="padding:8px;"></div>
+      </div>
+      <div style="text-align:right;font-weight:600;font-size:14px;margin-top:4px;">= CHF ${(item.totalCents/100).toFixed(2)}</div>
+    </div>`).join('');
+  calcTotal();
+}
+function addSvcFromSel() {
+  const sel = document.getElementById('s-svc-sel');
+  const i = sel.selectedIndex; if (i === 0) return;
+  const opt = sel.options[i];
+  const price = parseInt(opt.dataset.price) || 0;
+  saleItems.push({ desc: opt.dataset.name, qty: 1, unitCents: price, totalCents: price });
+  sel.selectedIndex = 0; renderItems();
+}
+function addCustomItem() {
+  const desc = prompt('Nome servizio:'); if (!desc) return;
+  const ps = prompt('Prezzo (CHF):');
+  const price = Math.round(parseFloat(ps) * 100) || 0;
+  saleItems.push({ desc, qty: 1, unitCents: price, totalCents: price });
+  renderItems();
+}
+function removeItem(i) { saleItems.splice(i, 1); renderItems(); }
+function updateItem(i, f, v) {
+  if (f === 'qty') saleItems[i].qty = parseInt(v) || 1;
+  if (f === 'price') saleItems[i].unitCents = Math.round(parseFloat(v) * 100) || 0;
+  saleItems[i].totalCents = saleItems[i].qty * saleItems[i].unitCents;
+  renderItems();
+}
+function calcTotal() {
+  const sub = saleItems.reduce((s, i) => s + i.totalCents, 0);
+  const disc = parseCents(document.getElementById('s-disc')?.value || 0);
+  const tip = parseCents(document.getElementById('s-tip')?.value || 0);
+  const tot = sub - disc + tip;
+  const el = document.getElementById('s-total');
+  if (el) el.textContent = 'CHF ' + (tot/100).toFixed(2);
+}
+async function submitSale() {
+  if (!saleItems.length) { showToast('Aggiungi almeno un servizio.', 'er'); return; }
+  const pmEl = document.getElementById('s-pm');
+  if (!pmEl.value) { showToast('Seleziona il metodo di pagamento.', 'er'); return; }
+  spin(true);
+  try {
+    const yr = curYear();
+    const rNum = await nextReceiptNum(yr);
+    const id = uuid(); const now = new Date().toISOString();
+    const sub = saleItems.reduce((s, i) => s + i.totalCents, 0);
+    const disc = parseCents(document.getElementById('s-disc').value);
+    const tip = parseCents(document.getElementById('s-tip').value);
+    const total = sub - disc + tip;
+    const cname = document.getElementById('s-cname').value.trim();
+    const cphone = document.getElementById('s-cphone').value.trim();
+    const cemail = document.getElementById('s-cemail').value.trim();
+    const ps = document.getElementById('s-ps').value;
+    const sale = {
+      id, receiptNum: rNum, date: document.getElementById('s-date').value || todayISO(),
+      customerName: cname, customerPhone: cphone, customerEmail: cemail,
+      payMethod: pmEl.value, payStatus: ps,
+      subCents: sub, discCents: disc, tipCents: tip, totalCents: total,
+      notes: document.getElementById('s-notes').value.trim(),
+      status: 'active', createdAt: now
+    };
+    await dbPut('sales', sale);
+    for (const item of saleItems)
+      await dbPut('saleItems', { id: uuid(), saleId: id, desc: item.desc, qty: item.qty, unitCents: item.unitCents, totalCents: item.totalCents });
+    App.lastSaleData = { sale, items: [...saleItems] };
+    lastSaleId = id; spin(false);
+    document.getElementById('r-num').textContent = rNum;
+    document.getElementById('r-tot').textContent = fmt(total);
+    document.getElementById('r-cust').textContent = cname || '';
+    nav('page-sale-result');
+  } catch(e) { spin(false); showToast('Errore: ' + e.message, 'er'); }
+}
+async function nextReceiptNum(year) {
+  const key = 'lastSeq_' + year;
+  const last = parseInt(await getSetting(key) || '0');
+  const all = await dbGetAll('sales');
+  const pfx = year + '-';
+  const maxFromDB = all.filter(s => s.receiptNum && s.receiptNum.startsWith(pfx))
+    .reduce((mx, s) => Math.max(mx, parseInt(s.receiptNum.replace(pfx,''))||0), 0);
+  const seq = Math.max(last, maxFromDB) + 1;
+  await setSetting(key, seq.toString());
+  return year + '-' + String(seq).padStart(4, '0');
+}
+
+// =====================================================================
+// Receipt generation (HTML → Blob → Safari tab) — bilingual
+// =====================================================================
+function buildReceiptHtml(sale, items, settings) {
+  const lang = settings.receiptLang || 'both';
+  const biz = settings.businessName || 'Mary Jo Nails';
+  const own = settings.ownerName || '';
+  const addr = (settings.address || '').replace(/\n/g, '<br>');
+  const ph = settings.phone || '';
+  const em = settings.email || '';
+  const web = settings.website || '';
+  const uid = settings.uid || '';
+  const vat = settings.vatMode || 'not_registered';
+  const rows = items.map(i =>
+    `<tr><td style="padding:6px 4px;border-bottom:1px solid #eee;">${esc(i.desc)}</td>
+     <td style="padding:6px 4px;border-bottom:1px solid #eee;text-align:center;">${i.qty}</td>
+     <td style="padding:6px 4px;border-bottom:1px solid #eee;text-align:right;">CHF ${fmtPlain(i.unitCents)}</td>
+     <td style="padding:6px 4px;border-bottom:1px solid #eee;text-align:right;">CHF ${fmtPlain(i.totalCents)}</td></tr>`
+  ).join('');
+  const discRow = sale.discCents > 0 ? `<tr><td colspan="3" style="text-align:right;padding:4px;color:#e74c3c;">${tl('discount',lang)}:</td><td style="text-align:right;padding:4px;color:#e74c3c;">- CHF ${fmtPlain(sale.discCents)}</td></tr>` : '';
+  const tipRow = sale.tipCents > 0 ? `<tr><td colspan="3" style="text-align:right;padding:4px;">${tl('tip',lang)}:</td><td style="text-align:right;padding:4px;">CHF ${fmtPlain(sale.tipCents)}</td></tr>` : '';
+  const vatNote = vat === 'not_registered' ? `<p style="font-size:11px;color:#777;margin-top:16px;border-top:1px solid #eee;padding-top:8px;">${tl('noVat',lang)}</p>` : (uid?`<p style="font-size:11px;color:#777;margin-top:16px;">MWST-Nr.: ${esc(uid)}</p>`:'');
+  const custBlock = sale.customerName ? `<p><strong>${tl('customer',lang)}:</strong> ${esc(sale.customerName)}</p>` : '';
+  return `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${tl('receipt',lang)} ${esc(sale.receiptNum)}</title>
+<style>body{font-family:Arial,sans-serif;font-size:13px;color:#333;margin:32px;max-width:600px;}
+h1{font-size:22px;margin:0;}table{width:100%;border-collapse:collapse;}
+th{background:#f5f5f5;padding:8px 4px;text-align:left;font-size:12px;border-bottom:2px solid #ddd;}
+.tot td{font-weight:bold;font-size:15px;border-top:2px solid #333;padding:8px 4px;}
+@media print{body{margin:12px;}.no-print{display:none!important;}}</style>
+</head><body>
+<div class="no-print" style="background:#c0392b;color:#fff;padding:12px 16px;margin:-32px -32px 24px;font-size:14px;display:flex;justify-content:space-between;align-items:center;">
+  <span>💅 ${esc(biz)}</span>
+  <button onclick="window.print()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:13px;">🖨️ Print / PDF</button>
+</div>
+<table style="margin-bottom:24px;"><tr>
+  <td><h1>${esc(biz)}</h1>${own?`<p>${esc(own)}</p>`:''}
+  <p style="color:#555;">${addr}</p>
+  ${ph?`<p>Tel: ${esc(ph)}</p>`:''}${em?`<p>${esc(em)}</p>`:''}${web?`<p>${esc(web)}</p>`:''}
+  </td>
+  <td style="text-align:right;vertical-align:top;">
+    <h2 style="color:#c0392b;">${tl('receipt',lang)}</h2>
+    <p><strong>${tl('num',lang)}</strong> ${esc(sale.receiptNum)}</p>
+    <p><strong>${tl('date',lang)}:</strong> ${fmtDate(sale.date)}</p>
+  </td>
+</tr></table>
+${custBlock}
+<table style="margin-top:16px;">
+  <tr><th>${tl('description',lang)}</th><th style="text-align:center;">${tl('qty',lang)}</th><th style="text-align:right;">${tl('price',lang)}</th><th style="text-align:right;">${tl('amount',lang)}</th></tr>
+  ${rows}
+  <tr><td colspan="3" style="text-align:right;padding:4px;color:#555;">${tl('subtotal',lang)}:</td><td style="text-align:right;padding:4px;">CHF ${fmtPlain(sale.subCents)}</td></tr>
+  ${discRow}${tipRow}
+  <tr class="tot"><td colspan="3" style="text-align:right;">${tl('total',lang)}:</td><td style="text-align:right;">CHF ${fmtPlain(sale.totalCents)}</td></tr>
+</table>
+<p style="margin-top:16px;"><strong>${tl('payment',lang)}:</strong> ${esc(sale.payMethod)} — <strong>${tl('status',lang)}:</strong> ${esc(payLabel(sale.payStatus,lang))}</p>
+${sale.notes?`<p><em>${esc(sale.notes)}</em></p>`:''}
+${vatNote}
+<p style="text-align:center;margin-top:24px;font-size:13px;color:#555;">${tl('thanks',lang)}</p>
+</body></html>`;
+}
+function openReceipt() {
+  if (!App.lastSaleData) return;
+  const { sale, items } = App.lastSaleData;
+  const html = buildReceiptHtml(sale, items, App.settings);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  showToast('Ricevuta aperta. Usa Condividi → PDF per salvare.', 'ok');
+}
+
+// =====================================================================
+// Receipt IMAGE (Canvas → PNG)
+// =====================================================================
+let currentImageCanvas = null;
+function drawRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+}
+function receiptToCanvas(sale, items, settings) {
+  const lang = settings.receiptLang || 'both';
+  const biz = settings.businessName || 'Mary Jo Nails';
+  const own = settings.ownerName || '';
+  const addr = (settings.address || '').split('\n').filter(x => x.trim());
+  const ph = settings.phone || '';
+  const web = settings.website || '';
+  const vat = settings.vatMode || 'not_registered';
+  const W = 720, PAD = 40;
+  const DPR = Math.min(window.devicePixelRatio || 2, 3);
+  // measure height
+  let h = 110;
+  if (own) h += 26;
+  h += addr.length * 22;
+  if (ph) h += 22; if (web) h += 22;
+  h = Math.max(h, 214) + 10;
+  if (sale.customerName) h += 28;
+  h += 42;                       // table header
+  h += items.length * 34;
+  h += 34;                       // subtotal
+  if (sale.discCents > 0) h += 30;
+  if (sale.tipCents > 0) h += 30;
+  h += 6 + 46 + 30;              // total box + payment
+  if (sale.notes) h += 30;
+  if (vat === 'not_registered') h += 34;
+  h += 8 + 30;                   // footer
+  const totalH = h + 30;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * DPR; canvas.height = totalH * DPR;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, totalH);
+  // header band
+  const grad = ctx.createLinearGradient(0, 0, W, 0);
+  grad.addColorStop(0, '#c0392b'); grad.addColorStop(1, '#8e2218');
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, 110);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '700 32px -apple-system,Arial,sans-serif';
+  ctx.fillText('💅 ' + biz, PAD, 66);
+  // left column business info
+  let y = 150;
+  ctx.fillStyle = '#333'; ctx.font = '400 15px Arial,sans-serif';
+  if (own) { ctx.fillText(own, PAD, y); y += 26; }
+  ctx.fillStyle = '#666';
+  addr.forEach(line => { ctx.fillText(line, PAD, y); y += 22; });
+  if (ph) { ctx.fillText('Tel: ' + ph, PAD, y); y += 22; }
+  if (web) { ctx.fillText(web, PAD, y); y += 22; }
+  // right column receipt meta
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#c0392b'; ctx.font = '700 26px Arial,sans-serif';
+  ctx.fillText(tl('receipt', lang), W - PAD, 150);
+  ctx.fillStyle = '#333'; ctx.font = '400 14px Arial,sans-serif';
+  ctx.fillText(tl('num', lang) + ' ' + sale.receiptNum, W - PAD, 176);
+  ctx.fillText(tl('date', lang) + ': ' + fmtDate(sale.date), W - PAD, 198);
+  ctx.textAlign = 'left';
+  y = Math.max(y, 214) + 10;
+  if (sale.customerName) {
+    ctx.fillStyle = '#333'; ctx.font = '600 15px Arial,sans-serif';
+    ctx.fillText(tl('customer', lang) + ': ' + sale.customerName, PAD, y);
+    y += 28;
+  }
+  // table header
+  ctx.fillStyle = '#f5f5f5'; ctx.fillRect(PAD, y, W - PAD*2, 30);
+  ctx.fillStyle = '#555'; ctx.font = '700 13px Arial,sans-serif';
+  const colQty = W - PAD - 230, colPrice = W - PAD - 120, colAmt = W - PAD;
+  ctx.fillText(tl('description', lang), PAD + 8, y + 20);
+  ctx.textAlign = 'center'; ctx.fillText(tl('qty', lang), colQty, y + 20);
+  ctx.textAlign = 'right'; ctx.fillText(tl('price', lang), colPrice, y + 20);
+  ctx.fillText(tl('amount', lang), colAmt, y + 20);
+  ctx.textAlign = 'left';
+  y += 42;
+  ctx.font = '400 14px Arial,sans-serif';
+  items.forEach(i => {
+    ctx.textAlign = 'left'; ctx.fillStyle = '#333';
+    let desc = i.desc; if (desc.length > 30) desc = desc.substring(0,29) + '…';
+    ctx.fillText(desc, PAD + 8, y);
+    ctx.textAlign = 'center'; ctx.fillText(String(i.qty), colQty, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(fmtPlain(i.unitCents), colPrice, y);
+    ctx.fillText(fmtPlain(i.totalCents), colAmt, y);
+    ctx.strokeStyle = '#eee'; ctx.beginPath(); ctx.moveTo(PAD, y+10); ctx.lineTo(W-PAD, y+10); ctx.stroke();
+    y += 34;
+  });
+  ctx.textAlign = 'right'; ctx.fillStyle = '#555'; ctx.font = '400 14px Arial,sans-serif';
+  y += 4;
+  ctx.fillText(tl('subtotal', lang) + ':  CHF ' + fmtSwiss(sale.subCents), colAmt, y); y += 30;
+  if (sale.discCents > 0) { ctx.fillStyle = '#e74c3c'; ctx.fillText(tl('discount',lang) + ':  - CHF ' + fmtSwiss(sale.discCents), colAmt, y); y += 30; }
+  if (sale.tipCents > 0) { ctx.fillStyle = '#555'; ctx.fillText(tl('tip',lang) + ':  CHF ' + fmtSwiss(sale.tipCents), colAmt, y); y += 30; }
+  ctx.textAlign = 'left';
+  // total box
+  y += 6;
+  ctx.fillStyle = '#c0392b';
+  drawRoundRect(ctx, PAD, y, W - PAD*2, 46, 10); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = '700 18px Arial,sans-serif';
+  ctx.fillText(tl('total', lang), PAD + 16, y + 30);
+  ctx.textAlign = 'right';
+  ctx.fillText('CHF ' + fmtSwiss(sale.totalCents), W - PAD - 16, y + 30);
+  ctx.textAlign = 'left';
+  y += 46 + 30;
+  ctx.fillStyle = '#333'; ctx.font = '400 14px Arial,sans-serif';
+  ctx.fillText(tl('payment', lang) + ': ' + sale.payMethod + '  —  ' + tl('status', lang) + ': ' + payLabel(sale.payStatus, lang), PAD, y);
+  y += 30;
+  if (sale.notes) { ctx.fillStyle = '#777'; ctx.font = 'italic 13px Arial,sans-serif'; ctx.fillText(sale.notes.substring(0,60), PAD, y); y += 30; }
+  if (vat === 'not_registered') { ctx.fillStyle = '#999'; ctx.font = '400 12px Arial,sans-serif'; ctx.fillText(tl('noVat', lang), PAD, y); y += 34; }
+  y += 8;
+  ctx.textAlign = 'center'; ctx.fillStyle = '#c0392b'; ctx.font = '600 16px Arial,sans-serif';
+  ctx.fillText(tl('thanks', lang), W/2, y);
+  return canvas;
+}
+function showReceiptImage() {
+  if (!App.lastSaleData) return;
+  const { sale, items } = App.lastSaleData;
+  try {
+    currentImageCanvas = receiptToCanvas(sale, items, App.settings);
+    document.getElementById('img-preview').src = currentImageCanvas.toDataURL('image/png');
+    document.getElementById('img-modal').classList.add('active');
+  } catch(e) { showToast('Errore immagine: ' + e.message, 'er'); }
+}
+function closeImg() { document.getElementById('img-modal').classList.remove('active'); }
+function canvasToBlob(canvas) { return new Promise(res => canvas.toBlob(res, 'image/png')); }
+async function shareCurrentImage() {
+  if (!currentImageCanvas || !App.lastSaleData) return;
+  const blob = await canvasToBlob(currentImageCanvas);
+  const fname = 'Ricevuta_' + App.lastSaleData.sale.receiptNum + '.png';
+  const file = new File([blob], fname, { type: 'image/png' });
+  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: 'Ricevuta ' + App.lastSaleData.sale.receiptNum }); return; }
+    catch(e) { if (e.name === 'AbortError') return; }
+  }
+  downloadCurrentImage();
+}
+function downloadCurrentImage() {
+  if (!currentImageCanvas || !App.lastSaleData) return;
+  const a = document.createElement('a');
+  a.href = currentImageCanvas.toDataURL('image/png');
+  a.download = 'Ricevuta_' + App.lastSaleData.sale.receiptNum + '.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  showToast('Immagine salvata!', 'ok');
+}
+async function shareImageWA() {
+  await shareCurrentImage();
+  setTimeout(() => openWhatsApp(), 400);
+}
+
+// =====================================================================
+// WhatsApp — direct open with contact preselected
+// =====================================================================
+function cleanPhone(phone) {
+  let clean = (phone||'').replace(/[^0-9+]/g, '');
+  if (clean.startsWith('00')) clean = '+' + clean.slice(2);
+  if (clean.startsWith('0')) clean = '+41' + clean.slice(1); // assume CH mobile
+  return clean.replace(/\+/g, '');
+}
+function waMessage(sale, lang) {
+  const name = sale.customerName || (lang === 'de' ? 'Liebe Kundin' : 'ciao');
+  const biz = App.settings.businessName || 'Mary Jo Nails';
+  if (lang === 'de')
+    return `Hallo ${name}! Vielen Dank für Ihren Besuch bei ${biz}. 💅\nQuittung ${sale.receiptNum}: CHF ${fmtSwiss(sale.totalCents)}.\nBis bald!`;
+  if (lang === 'it')
+    return `Ciao ${name}! Grazie per essere venuta da ${biz}. 💅\nRicevuta ${sale.receiptNum}: CHF ${fmtSwiss(sale.totalCents)}.\nA presto!`;
+  return `Ciao ${name}! Grazie per essere venuta da ${biz}. 💅\nRicevuta ${sale.receiptNum}: CHF ${fmtSwiss(sale.totalCents)}.\n\nHallo! Vielen Dank für Ihren Besuch. Quittung ${sale.receiptNum}. Bis bald!`;
+}
+function openWhatsApp() {
+  if (!App.lastSaleData) return;
+  const sale = App.lastSaleData.sale;
+  const lang = App.settings.receiptLang || 'both';
+  const msg = waMessage(sale, lang);
+  const phone = (sale.customerPhone || '').trim();
+  if (phone) {
+    const clean = cleanPhone(phone);
+    window.open('https://wa.me/' + clean + '?text=' + encodeURIComponent(msg), '_blank');
+    showToast('WhatsApp aperto 💬', 'ok');
+    return;
+  }
+  document.getElementById('wa-text').value = msg;
+  document.getElementById('wa-phone-in').value = '';
+  document.getElementById('wa-modal').classList.add('active');
+}
+function sendWAfromModal() {
+  const msg = document.getElementById('wa-text').value;
+  const phone = document.getElementById('wa-phone-in').value.trim();
+  if (!phone) { showToast('Inserisci un numero.', 'er'); return; }
+  window.open('https://wa.me/' + cleanPhone(phone) + '?text=' + encodeURIComponent(msg), '_blank');
+  closeWA();
+}
+function copyWA() {
+  const t = document.getElementById('wa-text').value;
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => showToast('Copiato!', 'ok'));
+  else { document.getElementById('wa-text').select(); document.execCommand('copy'); showToast('Copiato!', 'ok'); }
+}
+function closeWA() { document.getElementById('wa-modal').classList.remove('active'); }
+function emailReceipt() {
+  if (!App.lastSaleData) return;
+  const sale = App.lastSaleData.sale;
+  const biz = App.settings.businessName || 'Mary Jo Nails';
+  const email = sale.customerEmail || prompt('Email del cliente:');
+  if (!email) return;
+  const subj = encodeURIComponent(`Ricevuta ${sale.receiptNum} — ${biz}`);
+  const body = encodeURIComponent(`Gentile ${sale.customerName||'cliente'},\n\nGrazie per la tua visita da ${biz}!\nRicevuta ${sale.receiptNum} del ${fmtDate(sale.date)}: CHF ${fmtSwiss(sale.totalCents)}\n\nA presto! 💅\n${biz}`);
+  window.open(`mailto:${email}?subject=${subj}&body=${body}`, '_self');
+}
+
+// =====================================================================
+// Expense
+// =====================================================================
+function calcDed() {
+  const amt = parseFloat(document.getElementById('e-amt').value) || 0;
+  const pct = parseFloat(document.getElementById('e-pct').value) || 100;
+  document.getElementById('e-ded').textContent = 'CHF ' + (amt * pct / 100).toFixed(2);
+}
+async function submitExpense() {
+  const amt = parseCents(document.getElementById('e-amt').value);
+  if (!amt) { showToast('Inserisci un importo.', 'er'); return; }
+  spin(true);
+  try {
+    const pct = parseInt(document.getElementById('e-pct').value) || 100;
+    const fileEl = document.getElementById('e-file');
+    let attachData = null;
+    if (fileEl.files[0]) attachData = await fileToBase64(fileEl.files[0]);
+    await dbPut('expenses', {
+      id: uuid(), date: document.getElementById('e-date').value || todayISO(),
+      vendor: document.getElementById('e-vendor').value.trim(),
+      category: document.getElementById('e-cat').value,
+      amtCents: amt, pct, dedCents: Math.round(amt * pct / 100),
+      payMethod: document.getElementById('e-pm').value,
+      notes: document.getElementById('e-notes').value.trim(),
+      attachData, status: 'active', createdAt: new Date().toISOString()
+    });
+    spin(false); showToast('Spesa salvata!', 'ok');
+    ['e-vendor','e-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('e-amt').value = '';
+    document.getElementById('e-date').value = todayISO();
+    fileEl.value = '';
+    document.getElementById('e-fname').textContent = 'Nessun file selezionato';
+    nav('page-dashboard', loadDash);
+  } catch(e) { spin(false); showToast('Errore: ' + e.message, 'er'); }
+}
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result); r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// =====================================================================
+// Year selects
+// =====================================================================
+function initYearSelects() {
+  const yr = curYear();
+  ['sl-year','el-year','bk-year','y-year'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '';
+    for (let y = yr; y >= yr - 3; y--) {
+      const o = document.createElement('option');
+      o.value = y; o.textContent = y;
+      if (y === yr) o.selected = true;
+      el.appendChild(o);
+    }
+  });
+  const moSel = document.getElementById('sl-month');
+  if (moSel) {
+    moSel.innerHTML = '<option value="">Tutti i mesi</option>';
+    const mo = curMonth();
+    for (let m = 1; m <= 12; m++) {
+      const o = document.createElement('option');
+      o.value = m; o.textContent = monthLabel(m);
+      if (m === mo) o.selected = true;
+      moSel.appendChild(o);
+    }
+  }
+}
+async function loadSalesList() {
+  const yr = parseInt(document.getElementById('sl-year')?.value || curYear());
+  const mo = parseInt(document.getElementById('sl-month')?.value || 0) || null;
+  const c = document.getElementById('sl-content');
+  c.innerHTML = '<div class="es"><div class="sp" style="margin:0 auto;"></div></div>';
+  try {
+    let rows = (await dbGetAll('sales')).filter(s => s.status !== 'cancelled');
+    rows = rows.filter(s => s.date && s.date.startsWith(yr.toString()));
+    if (mo) rows = rows.filter(s => s.date && s.date.startsWith(yr+'-'+String(mo).padStart(2,'0')));
+    rows.sort((a,b) => b.createdAt > a.createdAt ? 1 : -1);
+    if (!rows.length) { c.innerHTML = '<div class="es"><div class="ei">🧾</div><p>Nessuna ricevuta.</p></div>'; return; }
+    c.innerHTML = rows.map(r => `<div class="li" onclick="openSaleDetail('${r.id}')">
+      <div class="ll"><div class="lt">${esc(r.receiptNum)} — ${esc(r.customerName||'Cliente')}</div>
+      <div class="ls">${fmtDate(r.date)} · ${esc(r.payMethod||'')} ${payBadge(r.payStatus)}</div></div>
+      <div class="lr"><div class="la">${fmt(r.totalCents)}</div></div></div>`).join('');
+  } catch(e) { c.innerHTML = '<p class="tm">Errore: '+esc(e.message)+'</p>'; }
+}
+async function openSaleDetail(id) {
+  spin(true);
+  try {
+    const sale = await dbGet('sales', id);
+    const items = (await dbGetAll('saleItems')).filter(i => i.saleId === id);
+    spin(false);
+    if (!sale) { showToast('Non trovato.', 'er'); return; }
+    App.lastSaleData = { sale, items: items.map(i => ({ desc: i.desc, qty: i.qty, unitCents: i.unitCents, totalCents: i.totalCents })) };
+    lastSaleId = id;
+    const itemRows = items.map(i =>
+      `<div class="sr"><span>${esc(i.desc)} ×${i.qty}</span><span>${fmt(i.totalCents)}</span></div>`).join('');
+    const discRow = sale.discCents > 0 ? `<div class="sr" style="color:#e74c3c;"><span>Sconto</span><span>− ${fmt(sale.discCents)}</span></div>` : '';
+    const tipRow = sale.tipCents > 0 ? `<div class="sr"><span>Mancia</span><span>${fmt(sale.tipCents)}</span></div>` : '';
+    const markPaidBtn = sale.payStatus !== 'Pagato'
+      ? `<button class="btn btn-s btn-sm mt8" onclick="markPaid('${id}')">✅ Segna come pagato</button>` : '';
+    document.getElementById('sd-content').innerHTML = `
+      <div class="card">
+        <div class="sr"><span class="ct">Ricevuta</span><span style="font-weight:700;">${esc(sale.receiptNum)}</span></div>
+        <div class="sr"><span>Data</span><span>${fmtDate(sale.date)}</span></div>
+        <div class="sr"><span>Cliente</span><span>${esc(sale.customerName||'—')}</span></div>
+        <div class="sr"><span>Pagamento</span><span>${esc(sale.payMethod||'—')}</span></div>
+        <div class="sr"><span>Stato</span><span>${payBadge(sale.payStatus)}</span></div>
+      </div>
+      <div class="card">${itemRows}${discRow}${tipRow}
+        <div class="sr tot"><span>TOTALE</span><span>${fmt(sale.totalCents)}</span></div>
+      </div>
+      <button class="btn btn-wa" onclick="openWhatsApp()">💬 Invia su WhatsApp</button>
+      <button class="btn btn-img" onclick="showReceiptImage()">🖼️ Ricevuta come immagine</button>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <button class="btn btn-bl btn-sm mb0" onclick="openReceipt()">📄 PDF</button>
+        <button class="btn btn-gy btn-sm mb0" onclick="emailReceipt()">✉️ Email</button>
+        ${markPaidBtn}
+      </div>
+      <hr class="div">
+      <button class="btn btn-dn" onclick="cancelSale('${id}')">🚫 Annulla ricevuta (Storno)</button>`;
+    nav('page-sale-detail');
+  } catch(e) { spin(false); showToast('Errore: '+e.message,'er'); }
+}
+async function markPaid(id) {
+  await dbPut('sales', { ...(await dbGet('sales', id)), payStatus: 'Pagato' });
+  showToast('Segnato come pagato!', 'ok');
+  openSaleDetail(id);
+}
+async function cancelSale(id) {
+  if (!confirm('Annullare questa ricevuta?')) return;
+  const sale = await dbGet('sales', id);
+  await dbPut('sales', { ...sale, status: 'cancelled' });
+  showToast('Ricevuta annullata.', '');
+  nav('page-sales-list', loadSalesList);
+}
+
+// =====================================================================
+// Expenses list
+// =====================================================================
+async function loadExpensesList() {
+  const yr = parseInt(document.getElementById('el-year')?.value || curYear());
+  const c = document.getElementById('el-content');
+  c.innerHTML = '<div class="es"><div class="sp" style="margin:0 auto;"></div></div>';
+  try {
+    let rows = (await dbGetAll('expenses')).filter(e => e.status !== 'cancelled' && e.date && e.date.startsWith(yr.toString()));
+    rows.sort((a,b) => b.date > a.date ? 1 : -1);
+    if (!rows.length) { c.innerHTML = '<div class="es"><div class="ei">🧾</div><p>Nessuna spesa.</p></div>'; return; }
+    c.innerHTML = rows.map(r => `<div class="li">
+      <div class="ll"><div class="lt">${esc(r.vendor||r.category||'Spesa')}</div>
+      <div class="ls">${fmtDate(r.date)} · ${esc(r.category||'')}</div></div>
+      <div class="lr"><div class="la" style="color:#e74c3c;">− ${fmt(r.amtCents)}</div>
+      ${r.dedCents !== r.amtCents ? `<div style="font-size:11px;color:#9ca3af;">Ded: ${fmt(r.dedCents)}</div>` : ''}</div></div>`).join('');
+  } catch(e) { c.innerHTML = '<p class="tm">Errore: '+esc(e.message)+'</p>'; }
+}
+
+// =====================================================================
+// Open payments
+// =====================================================================
+async function loadOpenPay() {
+  const c = document.getElementById('op-content');
+  c.innerHTML = '';
+  try {
+    const rows = (await dbGetAll('sales')).filter(s =>
+      s.status !== 'cancelled' && (s.payStatus === 'Aperto' || s.payStatus === 'Pagato parzialmente'));
+    if (!rows.length) { c.innerHTML = '<div class="es"><div class="ei">✅</div><p>Tutti i pagamenti incassati!</p></div>'; return; }
+    c.innerHTML = rows.map(r => `<div class="li">
+      <div class="ll"><div class="lt">${esc(r.receiptNum)} — ${esc(r.customerName||'Cliente')}</div>
+      <div class="ls">${fmtDate(r.date)} ${payBadge(r.payStatus)}</div></div>
+      <div class="lr"><div class="la">${fmt(r.totalCents)}</div>
+      <button class="btn btn-s btn-sm mt8 mb0" onclick="markPaid('${r.id}')">Incassato</button></div></div>`).join('');
+  } catch(e) { c.innerHTML = '<p class="tm">Errore: '+esc(e.message)+'</p>'; }
+}
+
+// =====================================================================
+// Yearly closing (Jahresabschluss) — GERMAN, Steueramt Zürich ready
+// =====================================================================
+async function gatherYear(yr) {
+  const yp = yr.toString();
+  const sales = (await dbGetAll('sales')).filter(s => s.status !== 'cancelled' && s.date && s.date.startsWith(yp));
+  const exps = (await dbGetAll('expenses')).filter(e => e.status !== 'cancelled' && e.date && e.date.startsWith(yp));
+  const ptx = (await dbGetAll('privateTx')).filter(t => t.date && t.date.startsWith(yp));
+  const openPay = (await dbGetAll('sales')).filter(s => s.status !== 'cancelled' && (s.payStatus==='Aperto'||s.payStatus==='Pagato parzialmente') && s.date && s.date.startsWith(yp));
+  const paidSales = sales.filter(s => s.payStatus === 'Pagato');
+  const rev = sumCents(sales, 'totalCents');
+  const revCollected = sumCents(paidSales, 'totalCents');
+  const exp = sumCents(exps, 'dedCents');
+  const priv_w = sumCents(ptx.filter(t => t.type === 'withdrawal'), 'amtCents');
+  const priv_c = sumCents(ptx.filter(t => t.type === 'contribution'), 'amtCents');
+  const openRec = sumCents(openPay, 'totalCents');
+  const byCat = {};
+  exps.forEach(e => { byCat[e.category||'Sonstiges'] = (byCat[e.category||'Sonstiges']||0) + (parseInt(e.dedCents)||0); });
+  return { yr, sales, exps, ptx, openPay, rev, revCollected, exp, priv_w, priv_c, openRec, byCat };
+}
+async function loadYearly() {
+  const yr = parseInt(document.getElementById('y-year')?.value || curYear());
+  const c = document.getElementById('y-content');
+  c.innerHTML = '<div class="es"><div class="sp" style="margin:0 auto;"></div></div>';
+  try {
+    const d = await gatherYear(yr);
+    const catRows = Object.keys(d.byCat).sort((a,b)=>d.byCat[b]-d.byCat[a])
+      .map(k => `<div class="sr"><span style="padding-left:16px;color:#666;font-size:14px;">${esc(k)}</span><span>− ${fmt(d.byCat[k])}</span></div>`).join('');
+    c.innerHTML = `
+      <div class="info">🇩🇪 Der Jahresabschluss (Einnahmen-/Ausgabenrechnung) wird auf Deutsch für das Steueramt erstellt. Als PDF exportierbar.</div>
+      <div class="card">
+        <div class="ct">Erfolgsrechnung ${d.yr}</div>
+        <div class="sr"><span>Einnahmen (Umsatz)</span><span style="color:var(--g);font-weight:600;">${fmt(d.rev)}</span></div>
+        <div class="sr"><span>Ausgaben (Aufwand)</span><span style="color:var(--r);font-weight:600;">− ${fmt(d.exp)}</span></div>
+        ${catRows}
+        <div class="sr tot"><span>Reingewinn</span><span style="color:${d.rev-d.exp>=0?'var(--g)':'var(--r)'};">${fmt(d.rev-d.exp)}</span></div>
+      </div>
+      <div class="card">
+        <div class="ct">Privatkonto</div>
+        <div class="sr"><span>Privatbezüge</span><span>${fmt(d.priv_w)}</span></div>
+        <div class="sr"><span>Privateinlagen</span><span>${fmt(d.priv_c)}</span></div>
+      </div>
+      <div class="card">
+        <div class="ct">Weitere Angaben</div>
+        <div class="sr"><span>Davon bereits vereinnahmt</span><span>${fmt(d.revCollected)}</span></div>
+        <div class="sr"><span>Offene Forderungen (Debitoren)</span><span style="color:var(--o);">${fmt(d.openRec)}</span></div>
+        <div class="sr"><span>Anzahl Belege</span><span>${d.sales.length}</span></div>
+      </div>
+      <p class="ht mt8">Einnahmen-Ausgaben-Rechnung für eine Einzelunternehmung (vereinfachte Buchführung gem. Art. 957 Abs. 2 OR, Umsatz &lt; CHF 500'000). Ersetzt keine Treuhand-Beratung.</p>`;
+  } catch(e) { c.innerHTML = '<p class="tm">Fehler: '+esc(e.message)+'</p>'; }
+}
+async function exportYearlyPdf() {
+  const yr = parseInt(document.getElementById('y-year')?.value || curYear());
+  const notes = document.getElementById('y-notes')?.value || '';
+  spin(true);
+  try {
+    const d = await gatherYear(yr);
+    const s = App.settings;
+    const biz = s.businessName || 'Mary Jo Nails';
+    const own = s.ownerName || '';
+    const addr = (s.address || '').replace(/\n/g, ', ');
+    const uid = s.uid || '';
+    const salesSorted = [...d.sales].sort((a,b)=> a.date>b.date?1:-1);
+    const expsSorted = [...d.exps].sort((a,b)=> a.date>b.date?1:-1);
+    const salesJournal = salesSorted.map(x =>
+      `<tr><td>${fmtDate(x.date)}</td><td>${esc(x.receiptNum)}</td><td>${esc(x.customerName||'—')}</td><td>${esc(x.payMethod||'')}</td><td class="right">${fmtSwiss(x.totalCents)}</td></tr>`).join('');
+    const expJournal = expsSorted.map(x =>
+      `<tr><td>${fmtDate(x.date)}</td><td>${esc(x.vendor||'—')}</td><td>${esc(x.category||'')}</td><td class="right">${x.pct||100}%</td><td class="right">${fmtSwiss(x.dedCents)}</td></tr>`).join('');
+    const catRows = Object.keys(d.byCat).sort((a,b)=>d.byCat[b]-d.byCat[a])
+      .map(k => `<tr><td style="padding-left:24px;">${esc(k)}</td><td class="right">${fmtSwiss(d.byCat[k])}</td></tr>`).join('');
+    const ptxRows = d.ptx.sort((a,b)=>a.date>b.date?1:-1).map(t =>
+      `<tr><td>${fmtDate(t.date)}</td><td>${t.type==='withdrawal'?'Privatbezug':'Privateinlage'}</td><td>${esc(t.notes||'')}</td><td class="right">${fmtSwiss(t.amtCents)}</td></tr>`).join('') || '<tr><td colspan="4" style="color:#999;">Keine</td></tr>';
+
+    const html = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jahresabschluss ${d.yr} — ${esc(biz)}</title>
+<style>
+body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#222;margin:36px;max-width:820px;line-height:1.45;}
+h1{font-size:19px;margin:0 0 2px;}h2{font-size:14px;color:#c0392b;margin:22px 0 8px;border-bottom:2px solid #c0392b;padding-bottom:4px;}
+.sub{color:#666;font-size:12px;margin-bottom:2px;}
+table{width:100%;border-collapse:collapse;margin-bottom:6px;font-size:12px;}
+th{background:#f2f2f2;text-align:left;padding:6px 8px;border-bottom:1.5px solid #ccc;font-size:11px;}
+td{padding:5px 8px;border-bottom:1px solid #eee;}
+.right{text-align:right;}
+.tot td{font-weight:bold;font-size:13px;background:#faf0ef;border-top:2px solid #c0392b;}
+.box{border:1px solid #ddd;border-radius:6px;padding:12px 16px;margin:10px 0;background:#fafafa;}
+.grid{display:flex;gap:16px;flex-wrap:wrap;}.grid>div{flex:1;min-width:200px;}
+.sign{margin-top:44px;display:flex;justify-content:space-between;gap:40px;}
+.sign div{flex:1;border-top:1px solid #333;padding-top:6px;font-size:11px;color:#555;}
+.disc{font-size:10px;color:#888;border:1px solid #ddd;border-radius:6px;padding:10px 12px;margin-top:20px;}
+@media print{body{margin:14px;}.no-print{display:none!important;}h2{page-break-after:avoid;}tr{page-break-inside:avoid;}}
+</style></head><body>
+<div class="no-print" style="background:#c0392b;color:#fff;padding:12px 16px;margin:-36px -36px 22px;display:flex;justify-content:space-between;align-items:center;">
+<span>💅 Jahresabschluss ${d.yr}</span>
+<button onclick="window.print()" style="background:rgba(255,255,255,.25);border:none;color:#fff;padding:8px 16px;border-radius:20px;cursor:pointer;font-weight:600;">🖨️ Als PDF speichern</button>
+</div>
+
+<h1>${esc(biz)}</h1>
+<div class="sub">${own?esc(own)+' · ':''}${esc(addr)}</div>
+${uid?`<div class="sub">MWST-Nr.: ${esc(uid)}</div>`:'<div class="sub">Nicht MWST-pflichtig</div>'}
+<div class="sub" style="margin-top:8px;font-weight:600;">Jahresabschluss / Einnahmen-Ausgaben-Rechnung — Geschäftsjahr 01.01.${d.yr} – 31.12.${d.yr}</div>
+
+<h2>1. Erfolgsrechnung</h2>
+<table>
+<tr><th>Position</th><th class="right">Betrag (CHF)</th></tr>
+<tr><td><strong>Betriebsertrag / Einnahmen</strong></td><td class="right" style="color:#27ae60;font-weight:600;">${fmtSwiss(d.rev)}</td></tr>
+<tr><td style="padding-left:24px;">Anzahl Rechnungen / Belege</td><td class="right">${d.sales.length}</td></tr>
+<tr><td><strong>Betriebsaufwand / Ausgaben</strong></td><td class="right" style="color:#e74c3c;font-weight:600;">− ${fmtSwiss(d.exp)}</td></tr>
+${catRows}
+<tr class="tot"><td>Reingewinn / Verlust</td><td class="right" style="color:${d.rev-d.exp>=0?'#27ae60':'#e74c3c'};">${fmtSwiss(d.rev-d.exp)}</td></tr>
+</table>
+
+<h2>2. Privatkonto</h2>
+<table>
+<tr><th>Datum</th><th>Art</th><th>Bemerkung</th><th class="right">Betrag (CHF)</th></tr>
+${ptxRows}
+<tr class="tot"><td colspan="3">Privatbezüge total</td><td class="right">${fmtSwiss(d.priv_w)}</td></tr>
+<tr class="tot"><td colspan="3">Privateinlagen total</td><td class="right">${fmtSwiss(d.priv_c)}</td></tr>
+</table>
+
+<h2>3. Weitere Angaben (Stand 31.12.${d.yr})</h2>
+<div class="box grid">
+<div><strong>Offene Forderungen (Debitoren)</strong><br><span style="font-size:16px;color:#e67e22;">CHF ${fmtSwiss(d.openRec)}</span><br><span style="color:#888;">${d.openPay.length} offene Posten</span></div>
+<div><strong>Bereits vereinnahmt</strong><br><span style="font-size:16px;">CHF ${fmtSwiss(d.revCollected)}</span></div>
+</div>
+
+<h2>4. Journal — Einnahmen</h2>
+<table>
+<tr><th>Datum</th><th>Beleg-Nr.</th><th>Kundin</th><th>Zahlung</th><th class="right">Betrag</th></tr>
+${salesJournal || '<tr><td colspan="5" style="color:#999;">Keine Einnahmen</td></tr>'}
+<tr class="tot"><td colspan="4">Total Einnahmen</td><td class="right">${fmtSwiss(d.rev)}</td></tr>
+</table>
+
+<h2>5. Journal — Ausgaben</h2>
+<table>
+<tr><th>Datum</th><th>Lieferant</th><th>Kategorie</th><th class="right">Geschäftl.</th><th class="right">Abzugsf. Betrag</th></tr>
+${expJournal || '<tr><td colspan="5" style="color:#999;">Keine Ausgaben</td></tr>'}
+<tr class="tot"><td colspan="4">Total abzugsfähige Ausgaben</td><td class="right">${fmtSwiss(d.exp)}</td></tr>
+</table>
+
+${notes?`<h2>6. Bemerkungen</h2><p>${esc(notes)}</p>`:''}
+
+<div class="sign">
+<div>Ort / Datum</div>
+<div>Unterschrift Inhaberin${own?' — '+esc(own):''}</div>
+</div>
+
+<div class="disc">
+Diese Einnahmen-Ausgaben-Rechnung (vereinfachte Buchführung / «Milchbüechlirechnung» gemäss Art. 957 Abs. 2 OR für Einzelunternehmen mit einem Jahresumsatz unter CHF 500'000) wurde nach bestem Wissen erstellt und dient als Beilage zur Steuererklärung (Fragebogen für Selbständigerwerbende, Kantonales Steueramt Zürich). Sämtliche Belege werden während 10 Jahren aufbewahrt. Erstellt am ${fmtDate(todayISO())} mit der Mary Jo Nails App. Ersetzt keine Treuhand- oder Steuerberatung.
+</div>
+</body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    spin(false);
+    showToast('Jahresabschluss geöffnet. Teilen → Drucken → PDF.', 'ok');
+  } catch(e) { spin(false); showToast('Fehler: '+e.message,'er'); }
+}
+
+// =====================================================================
+// Private transactions
+// =====================================================================
+async function submitPrivTx() {
+  const amt = parseCents(document.getElementById('pt-amt').value);
+  if (!amt) { showToast('Inserisci un importo.', 'er'); return; }
+  spin(true);
+  try {
+    await dbPut('privateTx', {
+      id: uuid(), date: document.getElementById('pt-date').value || todayISO(),
+      type: document.getElementById('pt-type').value,
+      amtCents: amt, notes: document.getElementById('pt-notes').value.trim(),
+      createdAt: new Date().toISOString()
+    });
+    spin(false); showToast('Transazione salvata!', 'ok');
+    nav('page-yearly', loadYearly);
+  } catch(e) { spin(false); showToast('Errore: '+e.message,'er'); }
+}
+
+// =====================================================================
+// Settings
+// =====================================================================
+function setLangSeg(l) {
+  document.querySelectorAll('#lang-seg button').forEach(b => b.classList.toggle('sel', b.dataset.l === l));
+  App._langChoice = l;
+}
+async function loadSettings() {
+  const s = await getAllSettings();
+  App.settings = s;
+  [['cfg-biz','businessName'],['cfg-own','ownerName'],['cfg-addr','address'],
+   ['cfg-ph','phone'],['cfg-em','email'],['cfg-web','website'],['cfg-uid','uid'],['cfg-vat','vatMode']]
+    .forEach(([id, key]) => { const el=document.getElementById(id); if(el) el.value = s[key]||''; });
+  setLangSeg(s.receiptLang || 'both');
+}
+async function saveSettings() {
+  spin(true);
+  try {
+    const keys = [['businessName','cfg-biz'],['ownerName','cfg-own'],['address','cfg-addr'],
+      ['phone','cfg-ph'],['email','cfg-em'],['website','cfg-web'],['uid','cfg-uid'],['vatMode','cfg-vat']];
+    for (const [key, id] of keys) {
+      const el = document.getElementById(id);
+      if (el) await setSetting(key, el.value);
+    }
+    await setSetting('receiptLang', App._langChoice || 'both');
+    App.settings = await getAllSettings();
+    const biz = App.settings.businessName || 'Mary Jo Nails';
+    document.querySelectorAll('.bn').forEach(el => el.textContent = biz);
+    document.getElementById('biz-name').textContent = biz;
+    spin(false); showToast('Impostazioni salvate!', 'ok');
+  } catch(e) { spin(false); showToast('Errore: '+e.message,'er'); }
+}
+async function changePin() {
+  const cur = prompt('PIN attuale:'); if (!cur) return;
+  const stored = await getSetting('pinHash');
+  const curHash = await sha256(cur);
+  if (curHash !== stored) { showToast('PIN attuale errato.', 'er'); return; }
+  const next = prompt('Nuovo PIN (min. 4 cifre):');
+  if (!next || next.length < 4) { showToast('PIN troppo corto.', 'er'); return; }
+  if (next !== prompt('Ripeti nuovo PIN:')) { showToast('I PIN non coincidono.', 'er'); return; }
+  await setSetting('pinHash', await sha256(next));
+  showToast('PIN cambiato!', 'ok');
+}
+
+// =====================================================================
+// Services management
+// =====================================================================
+async function loadServicesList() {
+  const c = document.getElementById('svc-list');
+  const rows = await dbGetAll('services');
+  c.innerHTML = rows.map(s => `<div class="li">
+    <div class="ll"><div class="lt">${esc(s.name)}${!s.active?'<span class="badge bgy" style="margin-left:6px;">Inattivo</span>':''}</div>
+    <div class="ls">CHF ${(s.priceCents/100).toFixed(2)}</div></div>
+    <button class="btn btn-gy btn-sm mb0" onclick="toggleSvc('${s.id}',${s.active})">${s.active?'Disattiva':'Attiva'}</button>
+    </div>`).join('') || '<p class="tm">Nessun servizio.</p>';
+}
+async function toggleSvc(id, active) {
+  const s = await dbGet('services', id);
+  await dbPut('services', { ...s, active: !active });
+  App.services = (await dbGetAll('services')).filter(s => s.active);
+  loadServicesList();
+}
+async function addService() {
+  const name = prompt('Nome servizio:'); if (!name) return;
+  const ps = prompt('Prezzo (CHF):');
+  const price = Math.round(parseFloat(ps)*100)||0;
+  await dbPut('services', { id: uuid(), name, description:'', priceCents: price, active: true, createdAt: new Date().toISOString() });
+  App.services = (await dbGetAll('services')).filter(s => s.active);
+  loadServicesList(); showToast('Servizio aggiunto!', 'ok');
+}
+
+// =====================================================================
+// Cloud backup — AES-GCM encrypted, jsonblob.com
+// =====================================================================
+const BLOB_API = 'https://jsonblob.com/api/jsonBlob';
+async function deriveCloudKey(pin) {
+  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: new TextEncoder().encode('MaryJoNailsCloud2024'), iterations: 200000, hash: 'SHA-256' },
+    km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function encryptForCloud(data, pin) {
+  const key = await deriveCloudKey(pin);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(data));
+  return { iv: Array.from(iv), ct: Array.from(new Uint8Array(enc)), v: 1 };
+}
+async function decryptFromCloud(payload, pin) {
+  const key = await deriveCloudKey(pin);
+  const dec = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: new Uint8Array(payload.iv) }, key, new Uint8Array(payload.ct));
+  return new TextDecoder().decode(dec);
+}
+async function loadCloudPage() {
+  const el = document.getElementById('cloud-status');
+  const blobId = await getSetting('cloudBlobId');
+  const lastSync = await getSetting('cloudLastSync');
+  if (blobId) {
+    el.innerHTML = `<div class="card"><div class="ct">Stato</div>
+      <div class="sr"><span>Codice backup</span><span style="font-family:monospace;font-size:12px;user-select:all;word-break:break-all;">${esc(blobId)}</span></div>
+      <div class="sr"><span>Ultimo caricamento</span><span>${lastSync?esc(lastSync):'—'}</span></div>
+      <button class="btn btn-gy btn-sm mt8 mb0" onclick="copyBlobId('${esc(blobId)}')">📋 Copia codice backup</button></div>`;
+  } else {
+    el.innerHTML = '<div class="card tm">Nessun backup nel cloud ancora. Crea il primo qui sotto ⬇️</div>';
+  }
+}
+function copyBlobId(id) {
+  if (navigator.clipboard) navigator.clipboard.writeText(id).then(()=>showToast('Codice copiato!','ok'));
+}
+async function doCloudUpload() {
+  const pin = document.getElementById('cloud-pin').value.trim();
+  if (pin.length < 6) { showToast('Codice segreto troppo corto (min. 6).', 'er'); return; }
+  spin(true);
+  try {
+    const data = {};
+    for (const st of ['settings','services','customers','sales','saleItems','expenses','privateTx'])
+      data[st] = await dbGetAll(st);
+    const encrypted = await encryptForCloud(JSON.stringify(data), pin);
+    const body = JSON.stringify({ mjn: encrypted, ts: new Date().toISOString() });
+    let blobId = await getSetting('cloudBlobId');
+    let ok = false;
+    if (blobId) {
+      const r = await fetch(`${BLOB_API}/${blobId}`, { method: 'PUT', headers: {'Content-Type':'application/json','Accept':'application/json'}, body });
+      ok = r.ok;
+    }
+    if (!ok) blobId = await createNewBlob(body);
+    await setSetting('cloudBlobId', blobId);
+    await setSetting('cloudLastSync', new Date().toLocaleString('it-CH'));
+    document.getElementById('cloud-pin').value = '';
+    spin(false); loadCloudPage();
+    showToast('Caricato nel cloud! ☁️✅', 'ok');
+    setTimeout(() => alert('✅ Backup nel cloud completato!\n\nCodice backup:\n' + blobId + '\n\nSalva questo codice + il tuo codice segreto in un posto sicuro. Ti serviranno per ripristinare su un altro telefono.'), 300);
+  } catch(e) { spin(false); showToast('Errore cloud: '+e.message, 'er'); }
+}
+async function createNewBlob(body) {
+  const r = await fetch(BLOB_API, { method: 'POST', headers: {'Content-Type':'application/json','Accept':'application/json'}, body });
+  if (!r.ok) throw new Error('Upload fallito (' + r.status + ')');
+  const loc = r.headers.get('Location') || '';
+  const id = loc.split('/').pop();
+  if (!id) throw new Error('Nessun codice ricevuto dal server.');
+  return id;
+}
+async function doCloudDownload() {
+  const blobId = document.getElementById('restore-cloud-code').value.trim();
+  const pin = document.getElementById('restore-cloud-pin').value.trim();
+  if (!blobId || !pin) { showToast('Inserisci codice backup e codice segreto.', 'er'); return; }
+  if (!confirm('⚠️ Sovrascrivere TUTTI i dati locali con quelli dal cloud?')) return;
+  spin(true);
+  try {
+    const r = await fetch(`${BLOB_API}/${blobId}`, { headers: {'Accept':'application/json'} });
+    if (!r.ok) throw new Error('Codice backup non trovato.');
+    const blob = await r.json();
+    if (!blob.mjn) throw new Error('Backup non valido.');
+    let decrypted;
+    try { decrypted = await decryptFromCloud(blob.mjn, pin); }
+    catch(e) { throw new Error('Codice segreto errato.'); }
+    const d = JSON.parse(decrypted);
+    for (const [store, rows] of Object.entries(d)) {
+      if (!['settings','services','customers','sales','saleItems','expenses','privateTx'].includes(store)) continue;
+      await dbClear(store);
+      for (const row of rows) await dbPut(store, row);
+    }
+    await setSetting('cloudBlobId', blobId);
+    App.settings = await getAllSettings();
+    App.services = (await dbGetAll('services')).filter(s => s.active);
+    spin(false); showToast('Dati ripristinati! ✅', 'ok');
+    nav('page-dashboard', loadDash);
+  } catch(e) { spin(false); showToast('Errore: '+e.message, 'er'); }
+}
+
+// =====================================================================
+// Backup & Restore (file)
+// =====================================================================
+async function doBackup() {
+  spin(true);
+  try {
+    const data = {};
+    for (const s of ['settings','services','customers','sales','saleItems','expenses','privateTx'])
+      data[s] = await dbGetAll(s);
+    const json = JSON.stringify({ exportedAt: new Date().toISOString(), version: '2.0', data }, null, 2);
+    downloadText(json, 'MaryJoNails_Backup_' + todayISO() + '.json', 'application/json');
+    spin(false); showToast('Backup scaricato!', 'ok');
+  } catch(e) { spin(false); showToast('Errore: '+e.message,'er'); }
+}
+async function doRestore(input) {
+  const file = input.files[0]; if (!file) return;
+  if (!confirm('⚠️ Il ripristino sovrascrive tutti i dati esistenti. Continuare?')) return;
+  spin(true);
+  try {
+    const text = await file.text();
+    const backup = JSON.parse(text);
+    if (!backup.data) throw new Error('File non valido');
+    for (const [store, rows] of Object.entries(backup.data)) {
+      await dbClear(store);
+      for (const row of rows) await dbPut(store, row);
+    }
+    App.settings = await getAllSettings();
+    App.services = (await dbGetAll('services')).filter(s => s.active);
+    spin(false); showToast('Dati ripristinati!', 'ok');
+    nav('page-dashboard', loadDash);
+  } catch(e) { spin(false); showToast('Errore: '+e.message,'er'); }
+}
+async function exportCSV() {
+  const yr = parseInt(document.getElementById('bk-year')?.value || curYear());
+  spin(true);
+  try {
+    const yp = yr.toString();
+    const sales = (await dbGetAll('sales')).filter(s => s.date && s.date.startsWith(yp));
+    const salesCsv = toCsv(['receiptNum','date','customerName','payMethod','payStatus','subCents','discCents','tipCents','totalCents','notes','status'], sales);
+    downloadText(salesCsv, `Vendite_${yr}.csv`, 'text/csv');
+    const exps = (await dbGetAll('expenses')).filter(e => e.date && e.date.startsWith(yp));
+    const expCsv = toCsv(['date','vendor','category','amtCents','pct','dedCents','payMethod','notes','status'], exps);
+    downloadText(expCsv, `Spese_${yr}.csv`, 'text/csv');
+    spin(false); showToast('CSV scaricati!', 'ok');
+  } catch(e) { spin(false); showToast('Errore: '+e.message,'er'); }
+}
+function toCsv(headers, rows) {
+  const lines = [headers.join(',')];
+  rows.forEach(r => {
+    lines.push(headers.map(h => {
+      let v = (r[h] !== undefined ? r[h] : '').toString().replace(/"/g,'""');
+      if (v.includes(',') || v.includes('"') || v.includes('\n')) v = '"'+v+'"';
+      return v;
+    }).join(','));
+  });
+  return lines.join('\n');
+}
+function downloadText(text, filename, type) {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// =====================================================================
+// UI helpers
+// =====================================================================
+function spin(on) { document.getElementById('so').classList.toggle('active', on); }
+function showToast(msg, type) {
+  const c = document.getElementById('tc');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' '+type : '');
+  t.textContent = msg; c.appendChild(t);
+  setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 3500);
+}
+
+// =====================================================================
+// Customer autofill on new sale
+// =====================================================================
+document.addEventListener('input', function(e){
+  if (e.target && e.target.id === 's-cname' && App._custMap) {
+    const m = App._custMap[e.target.value];
+    if (m) {
+      if (!document.getElementById('s-cphone').value) document.getElementById('s-cphone').value = m.phone||'';
+      if (!document.getElementById('s-cemail').value) document.getElementById('s-cemail').value = m.email||'';
+    }
+  }
+});
+
+// =====================================================================
+// Service Worker registration
+// =====================================================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
+  });
+}
+
+// =====================================================================
+// Boot
+// =====================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  initYearSelects();
+  document.getElementById('s-date').value = todayISO();
+  document.getElementById('e-date').value = todayISO();
+  document.getElementById('pt-date').value = todayISO();
+  const ef = document.getElementById('e-file');
+  if (ef) ef.addEventListener('change', function() {
+    document.getElementById('e-fname').textContent = this.files[0] ? this.files[0].name : 'Nessun file selezionato';
+  });
+  appInit();
+});
+</script>
+</body>
+</html>
